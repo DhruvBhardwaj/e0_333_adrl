@@ -32,8 +32,10 @@ class convBlock(nn.Module):
         layers =[]
 
         layers.append(nn.Conv2d(in_channels,out_channels[0],3))
+        layers.append(nn.GroupNorm(4, out_channels[0]))
         layers.append(nn.ReLU())
         layers.append(nn.Conv2d(out_channels[0],out_channels[1],3))
+        layers.append(nn.GroupNorm(4, out_channels[1]))
         layers.append(nn.ReLU())
 
         self.net = nn.ModuleList(layers)#nn.Sequential(*layers)        
@@ -196,6 +198,7 @@ class DiffusionNet(nn.Module):
 
     #     loss = loss1 + loss2
     #     return loss, loss1, loss2
+
     def criterion(self,x,e,e0):
             
             e = torch.flatten(e,start_dim=1)
@@ -205,12 +208,6 @@ class DiffusionNet(nn.Module):
             diff_norm = torch.linalg.vector_norm(diff_e,dim=1,keepdim=True)        
             loss1 = torch.sum(diff_norm**2)
             
-            # For eq (13) only
-            # alphabar_t = self.alphabar_t[t]
-            # alpha_t = self.alpha_t[t]
-            # const = ((1-alpha_t)/(2*(alpha_t)*(1-alphabar_t))).permute(1,0)
-            #loss = torch.sum(const*diff_norm) 
-            
             loss2 = torch.tensor([0]).to(self.device)            
 
             loss = loss1# + loss2
@@ -219,21 +216,22 @@ class DiffusionNet(nn.Module):
 if __name__ == '__main__':
     from config_1a_celeba import cfg
 
-    # d = DiffusionNet(cfg,'cpu')
-    # x = torch.randn(2,3,64,64)
-    # y,_ = d(x)
-    # print(y.size())
+    d = DiffusionNet(cfg,'cpu')
+    x = torch.randn(2,3,64,64)
+    y,_ = d(x)
+    print(y.size())
     
     # x = torch.randn(5,3*256*256)
     
-    t = torch.randint(low=0,high=10-1,size=(1,2))    
-    print(t)
-    pemb = pEncode(t,10)
-    print(torch.max(pemb),torch.min(pemb))
-    print(pemb)
-    P = getPosnEncode(10,10)
-    print('----')
-    print(P[t])
+    # t = torch.randint(low=0,high=10-1,size=(1,2))    
+    # print(t)
+    # pemb = pEncode(t,10)
+    # print(torch.max(pemb),torch.min(pemb))
+    # print(pemb)
+    # P = getPosnEncode(10,10)
+    # print('----')
+    # print(P[t])
+
     # print(pemb.reshape(5,3,256,256).numpy().shape)
     # import matplotlib.pyplot as plt
     # img = pemb.reshape(5,3,256,256).numpy()[1].T

@@ -19,11 +19,11 @@ cfg={
             'd':12288 #64x64x3
         },
         'training':{
-            'batch_size':96,
+            'batch_size':64,
             'num_epochs':50,
             'lr':0.0002,
             'save_path':'./logs/',
-            'data_path':'./datasets/img_align_celeba_resampled/',
+            'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',
             'file_extn':'jpg'
         }
     }
