@@ -1,82 +1,4 @@
-cuda
------------------------------------------------------------
------------------------------------------------------------
-ENCODER
------------------------------------------------------------
-ModuleList(
-  (0): convBlock(
-    (net): ModuleList(
-      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
-      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
-      (2): ReLU()
-      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
-      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
-      (5): ReLU()
-    )
-  )
-  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
-  (2): convBlock(
-    (net): ModuleList(
-      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
-      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
-      (2): ReLU()
-      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
-      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
-      (5): ReLU()
-    )
-  )
-  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
-  (4): convBlock(
-    (net): ModuleList(
-      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
-      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
-      (2): ReLU()
-      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
-      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
-      (5): ReLU()
-    )
-  )
-)
------------------------------------------------------------
------------------------------------------------------------
-DECODER
------------------------------------------------------------
-ModuleList(
-  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
-  (1): convBlock(
-    (net): ModuleList(
-      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
-      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
-      (2): ReLU()
-      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
-      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
-      (5): ReLU()
-    )
-  )
-  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
-  (3): convBlock(
-    (net): ModuleList(
-      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
-      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
-      (2): ReLU()
-      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
-      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
-      (5): ReLU()
-    )
-  )
-)
------------------------------------------------------------
-ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
------------------------------------------------------------
-Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
------------------------------------------------------------
-Tanh()
------------------------------------------------------------
-[INFO] DATA_PATH=/home/dhruvb/adrl/datasets/img_align_celeba_resampled/, BATCH_SIZE=96
-[INFO] Found data set with 202599 samples
------------------------------------------------------------
-Starting Training of model
-cuda
+cuda:1
 -----------------------------------------------------------
 -----------------------------------------------------------
 ENCODER
@@ -154,67 +76,538 @@ Tanh()
 [INFO] Found data set with 202599 samples
 -----------------------------------------------------------
 Starting Training of model
-Epoch 1......Step: 500/3166....... Loss=  6.2532e+06 (l[xt<-xt1]=  6.2532e+06,l[x0<-x1]=         0.0)
-Epoch 1......Step: 1000/3166....... Loss=  1.2399e+07 (l[xt<-xt1]=  1.2399e+07,l[x0<-x1]=         0.0)
-Epoch 1......Step: 1500/3166....... Loss=  1.8543e+07 (l[xt<-xt1]=  1.8543e+07,l[x0<-x1]=         0.0)
-Epoch 1......Step: 2000/3166....... Loss=  2.4688e+07 (l[xt<-xt1]=  2.4688e+07,l[x0<-x1]=         0.0)
-Epoch 1......Step: 2500/3166....... Loss=  3.0833e+07 (l[xt<-xt1]=  3.0833e+07,l[x0<-x1]=         0.0)
-Epoch 1......Step: 3000/3166....... Loss=  3.6977e+07 (l[xt<-xt1]=  3.6977e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 500/3166....... Loss=  6.1885e+06 (l[xt<-xt1]=  6.1885e+06,l[x0<-x1]=         0.0)
+Epoch 1......Step: 1000/3166....... Loss=  1.2333e+07 (l[xt<-xt1]=  1.2333e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 1500/3166....... Loss=  1.8477e+07 (l[xt<-xt1]=  1.8477e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 2000/3166....... Loss=  2.4622e+07 (l[xt<-xt1]=  2.4622e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 2500/3166....... Loss=  3.0767e+07 (l[xt<-xt1]=  3.0767e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 3000/3166....... Loss=  3.6911e+07 (l[xt<-xt1]=  3.6911e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 1/50 Done, Loss =   1.2324e+04 (l[xt<-xt1]=  1.2324e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=16931        seconds
+Epoch 1/500 Done, Loss =   1.2303e+04 (l[xt<-xt1]=  1.2303e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=16883        seconds
 -----------------------------------------------------------
-Epoch 2......Step: 500/3166....... Loss=  6.1435e+06 (l[xt<-xt1]=  6.1435e+06,l[x0<-x1]=         0.0)
-Epoch 2......Step: 1000/3166....... Loss=  1.2286e+07 (l[xt<-xt1]=  1.2286e+07,l[x0<-x1]=         0.0)
-Epoch 2......Step: 1500/3166....... Loss=  1.8429e+07 (l[xt<-xt1]=  1.8429e+07,l[x0<-x1]=         0.0)
-Epoch 2......Step: 2000/3166....... Loss=   2.457e+07 (l[xt<-xt1]=   2.457e+07,l[x0<-x1]=         0.0)
-Epoch 2......Step: 2500/3166....... Loss=  3.0708e+07 (l[xt<-xt1]=  3.0708e+07,l[x0<-x1]=         0.0)
-Epoch 2......Step: 3000/3166....... Loss=  3.6841e+07 (l[xt<-xt1]=  3.6841e+07,l[x0<-x1]=         0.0)
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+Loading checkpoint from: ./chkpt/expt_1a_celeba.chk.pt
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+Loading checkpoint from: ./chkpt/expt_1a_celeba.chk.pt
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+Loading checkpoint from: ./chkpt/expt_1a_celeba.chk.pt
+[INFO] DATA_PATH=/home/dhruvb/adrl/datasets/img_align_celeba_resampled/, BATCH_SIZE=64
+[INFO] Found data set with 202599 samples
+-----------------------------------------------------------
+Starting Training of model
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+Loading checkpoint from: ./chkpt/expt_1a_celeba.chk.pt
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+[INFO] DATA_PATH=/home/dhruvb/adrl/datasets/img_align_celeba_resampled/, BATCH_SIZE=64
+[INFO] Found data set with 202599 samples
+-----------------------------------------------------------
+Starting Training of model
+Epoch 1......Step: 500/3166....... Loss=  6.1885e+06 (l[xt<-xt1]=  6.1885e+06,l[x0<-x1]=         0.0)
+cuda:1
+-----------------------------------------------------------
+-----------------------------------------------------------
+ENCODER
+-----------------------------------------------------------
+ModuleList(
+  (0): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (1): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (2): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (3): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+  (4): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 256, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+-----------------------------------------------------------
+DECODER
+-----------------------------------------------------------
+ModuleList(
+  (0): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+  (1): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 128, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+  (2): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+  (3): convBlock(
+    (net): ModuleList(
+      (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1))
+      (1): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (2): ReLU()
+      (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1))
+      (4): GroupNorm(4, 64, eps=1e-05, affine=True)
+      (5): ReLU()
+    )
+  )
+)
+-----------------------------------------------------------
+ConvTranspose2d(64, 32, kernel_size=(3, 3), stride=(3, 3), padding=(4, 4))
+-----------------------------------------------------------
+Conv2d(32, 3, kernel_size=(1, 1), stride=(1, 1))
+-----------------------------------------------------------
+Tanh()
+-----------------------------------------------------------
+[INFO] DATA_PATH=/home/dhruvb/adrl/datasets/img_align_celeba_resampled/, BATCH_SIZE=64
+[INFO] Found data set with 202599 samples
+-----------------------------------------------------------
+Starting Training of model
+Epoch 1......Step: 500/3166....... Loss=  6.1885e+06 (l[xt<-xt1]=  6.1885e+06,l[x0<-x1]=         0.0)
+Epoch 1......Step: 1000/3166....... Loss=  1.2333e+07 (l[xt<-xt1]=  1.2333e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 1500/3166....... Loss=  1.8477e+07 (l[xt<-xt1]=  1.8477e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 2000/3166....... Loss=  2.4622e+07 (l[xt<-xt1]=  2.4622e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 2500/3166....... Loss=  3.0767e+07 (l[xt<-xt1]=  3.0767e+07,l[x0<-x1]=         0.0)
+Epoch 1......Step: 3000/3166....... Loss=  3.6911e+07 (l[xt<-xt1]=  3.6911e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 2/50 Done, Loss =   1.2279e+04 (l[xt<-xt1]=  1.2279e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=17539        seconds
+Epoch 1/500 Done, Loss =   1.2303e+04 (l[xt<-xt1]=  1.2303e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=16841        seconds
 -----------------------------------------------------------
-Epoch 3......Step: 500/3166....... Loss=  6.1227e+06 (l[xt<-xt1]=  6.1227e+06,l[x0<-x1]=         0.0)
-Epoch 3......Step: 1000/3166....... Loss=  1.2239e+07 (l[xt<-xt1]=  1.2239e+07,l[x0<-x1]=         0.0)
-Epoch 3......Step: 1500/3166....... Loss=  1.8344e+07 (l[xt<-xt1]=  1.8344e+07,l[x0<-x1]=         0.0)
-Epoch 3......Step: 2000/3166....... Loss=   2.443e+07 (l[xt<-xt1]=   2.443e+07,l[x0<-x1]=         0.0)
-Epoch 3......Step: 2500/3166....... Loss=    3.05e+07 (l[xt<-xt1]=    3.05e+07,l[x0<-x1]=         0.0)
-Epoch 3......Step: 3000/3166....... Loss=  3.6559e+07 (l[xt<-xt1]=  3.6559e+07,l[x0<-x1]=         0.0)
+Epoch 2......Step: 500/3166....... Loss=  6.1434e+06 (l[xt<-xt1]=  6.1434e+06,l[x0<-x1]=         0.0)
+Epoch 2......Step: 1000/3166....... Loss=  1.2285e+07 (l[xt<-xt1]=  1.2285e+07,l[x0<-x1]=         0.0)
+Epoch 2......Step: 1500/3166....... Loss=  1.8425e+07 (l[xt<-xt1]=  1.8425e+07,l[x0<-x1]=         0.0)
+Epoch 2......Step: 2000/3166....... Loss=   2.456e+07 (l[xt<-xt1]=   2.456e+07,l[x0<-x1]=         0.0)
+Epoch 2......Step: 2500/3166....... Loss=   3.069e+07 (l[xt<-xt1]=   3.069e+07,l[x0<-x1]=         0.0)
+Epoch 2......Step: 3000/3166....... Loss=  3.6811e+07 (l[xt<-xt1]=  3.6811e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 3/50 Done, Loss =   1.2182e+04 (l[xt<-xt1]=  1.2182e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=17569        seconds
+Epoch 2/500 Done, Loss =   1.2269e+04 (l[xt<-xt1]=  1.2269e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=17364        seconds
 -----------------------------------------------------------
-Epoch 4......Step: 500/3166....... Loss=  6.0436e+06 (l[xt<-xt1]=  6.0436e+06,l[x0<-x1]=         0.0)
-Epoch 4......Step: 1000/3166....... Loss=  1.2076e+07 (l[xt<-xt1]=  1.2076e+07,l[x0<-x1]=         0.0)
-Epoch 4......Step: 1500/3166....... Loss=  1.8101e+07 (l[xt<-xt1]=  1.8101e+07,l[x0<-x1]=         0.0)
-Epoch 4......Step: 2000/3166....... Loss=  2.4118e+07 (l[xt<-xt1]=  2.4118e+07,l[x0<-x1]=         0.0)
-Epoch 4......Step: 2500/3166....... Loss=  3.0126e+07 (l[xt<-xt1]=  3.0126e+07,l[x0<-x1]=         0.0)
-Epoch 4......Step: 3000/3166....... Loss=  3.6128e+07 (l[xt<-xt1]=  3.6128e+07,l[x0<-x1]=         0.0)
+Epoch 3......Step: 500/3166....... Loss=  6.1062e+06 (l[xt<-xt1]=  6.1062e+06,l[x0<-x1]=         0.0)
+Epoch 3......Step: 1000/3166....... Loss=   1.219e+07 (l[xt<-xt1]=   1.219e+07,l[x0<-x1]=         0.0)
+Epoch 3......Step: 1500/3166....... Loss=  1.8252e+07 (l[xt<-xt1]=  1.8252e+07,l[x0<-x1]=         0.0)
+Epoch 3......Step: 2000/3166....... Loss=  2.4295e+07 (l[xt<-xt1]=  2.4295e+07,l[x0<-x1]=         0.0)
+Epoch 3......Step: 2500/3166....... Loss=  3.0325e+07 (l[xt<-xt1]=  3.0325e+07,l[x0<-x1]=         0.0)
+Epoch 3......Step: 3000/3166....... Loss=  3.6343e+07 (l[xt<-xt1]=  3.6343e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 4/50 Done, Loss =    1.204e+04 (l[xt<-xt1]=   1.204e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=17216        seconds
+Epoch 3/500 Done, Loss =   1.2109e+04 (l[xt<-xt1]=  1.2109e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=17893        seconds
 -----------------------------------------------------------
-Epoch 5......Step: 500/3166....... Loss=  5.9931e+06 (l[xt<-xt1]=  5.9931e+06,l[x0<-x1]=         0.0)
-Epoch 5......Step: 1000/3166....... Loss=  1.1981e+07 (l[xt<-xt1]=  1.1981e+07,l[x0<-x1]=         0.0)
-Epoch 5......Step: 1500/3166....... Loss=  1.7962e+07 (l[xt<-xt1]=  1.7962e+07,l[x0<-x1]=         0.0)
-Epoch 5......Step: 2000/3166....... Loss=  2.3937e+07 (l[xt<-xt1]=  2.3937e+07,l[x0<-x1]=         0.0)
-Epoch 5......Step: 2500/3166....... Loss=  2.9909e+07 (l[xt<-xt1]=  2.9909e+07,l[x0<-x1]=         0.0)
-Epoch 5......Step: 3000/3166....... Loss=  3.5876e+07 (l[xt<-xt1]=  3.5876e+07,l[x0<-x1]=         0.0)
+Epoch 4......Step: 500/3166....... Loss=  6.0051e+06 (l[xt<-xt1]=  6.0051e+06,l[x0<-x1]=         0.0)
+Epoch 4......Step: 1000/3166....... Loss=  1.2001e+07 (l[xt<-xt1]=  1.2001e+07,l[x0<-x1]=         0.0)
+Epoch 4......Step: 1500/3166....... Loss=  1.7989e+07 (l[xt<-xt1]=  1.7989e+07,l[x0<-x1]=         0.0)
+Epoch 4......Step: 2000/3166....... Loss=   2.397e+07 (l[xt<-xt1]=   2.397e+07,l[x0<-x1]=         0.0)
+Epoch 4......Step: 2500/3166....... Loss=  2.9944e+07 (l[xt<-xt1]=  2.9944e+07,l[x0<-x1]=         0.0)
+Epoch 4......Step: 3000/3166....... Loss=  3.5913e+07 (l[xt<-xt1]=  3.5913e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 5/50 Done, Loss =   1.1957e+04 (l[xt<-xt1]=  1.1957e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=17150        seconds
+Epoch 4/500 Done, Loss =   1.1969e+04 (l[xt<-xt1]=  1.1969e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=18168        seconds
 -----------------------------------------------------------
-Epoch 6......Step: 500/3166....... Loss=  5.9618e+06 (l[xt<-xt1]=  5.9618e+06,l[x0<-x1]=         0.0)
-Epoch 6......Step: 1000/3166....... Loss=   1.192e+07 (l[xt<-xt1]=   1.192e+07,l[x0<-x1]=         0.0)
-Epoch 6......Step: 1500/3166....... Loss=  1.7876e+07 (l[xt<-xt1]=  1.7876e+07,l[x0<-x1]=         0.0)
-Epoch 6......Step: 2000/3166....... Loss=  2.3828e+07 (l[xt<-xt1]=  2.3828e+07,l[x0<-x1]=         0.0)
-Epoch 6......Step: 2500/3166....... Loss=  2.9776e+07 (l[xt<-xt1]=  2.9776e+07,l[x0<-x1]=         0.0)
-Epoch 6......Step: 3000/3166....... Loss=  3.5723e+07 (l[xt<-xt1]=  3.5723e+07,l[x0<-x1]=         0.0)
+Epoch 5......Step: 500/3166....... Loss=  5.9617e+06 (l[xt<-xt1]=  5.9617e+06,l[x0<-x1]=         0.0)
+Epoch 5......Step: 1000/3166....... Loss=   1.192e+07 (l[xt<-xt1]=   1.192e+07,l[x0<-x1]=         0.0)
+Epoch 5......Step: 1500/3166....... Loss=  1.7873e+07 (l[xt<-xt1]=  1.7873e+07,l[x0<-x1]=         0.0)
+Epoch 5......Step: 2000/3166....... Loss=  2.3822e+07 (l[xt<-xt1]=  2.3822e+07,l[x0<-x1]=         0.0)
+Epoch 5......Step: 2500/3166....... Loss=  2.9769e+07 (l[xt<-xt1]=  2.9769e+07,l[x0<-x1]=         0.0)
+Epoch 5......Step: 3000/3166....... Loss=  3.5712e+07 (l[xt<-xt1]=  3.5712e+07,l[x0<-x1]=         0.0)
 202599
-Epoch 6/50 Done, Loss =   1.1907e+04 (l[xt<-xt1]=  1.1907e+04,l[x0<-x1]=         0.0)
-Total Time Elapsed=15796        seconds
+Epoch 5/500 Done, Loss =   1.1903e+04 (l[xt<-xt1]=  1.1903e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=18118        seconds
 -----------------------------------------------------------
-Epoch 7......Step: 500/3166....... Loss=  5.9422e+06 (l[xt<-xt1]=  5.9422e+06,l[x0<-x1]=         0.0)
-Epoch 7......Step: 1000/3166....... Loss=  1.1882e+07 (l[xt<-xt1]=  1.1882e+07,l[x0<-x1]=         0.0)
-Epoch 7......Step: 1500/3166....... Loss=  1.7821e+07 (l[xt<-xt1]=  1.7821e+07,l[x0<-x1]=         0.0)
-Epoch 7......Step: 2000/3166....... Loss=  2.3756e+07 (l[xt<-xt1]=  2.3756e+07,l[x0<-x1]=         0.0)
+Epoch 6......Step: 500/3166....... Loss=   5.939e+06 (l[xt<-xt1]=   5.939e+06,l[x0<-x1]=         0.0)
+Epoch 6......Step: 1000/3166....... Loss=  1.1875e+07 (l[xt<-xt1]=  1.1875e+07,l[x0<-x1]=         0.0)
+Epoch 6......Step: 1500/3166....... Loss=  1.7809e+07 (l[xt<-xt1]=  1.7809e+07,l[x0<-x1]=         0.0)
+Epoch 6......Step: 2000/3166....... Loss=  2.3741e+07 (l[xt<-xt1]=  2.3741e+07,l[x0<-x1]=         0.0)
+Epoch 6......Step: 2500/3166....... Loss=   2.967e+07 (l[xt<-xt1]=   2.967e+07,l[x0<-x1]=         0.0)
+Epoch 6......Step: 3000/3166....... Loss=  3.5599e+07 (l[xt<-xt1]=  3.5599e+07,l[x0<-x1]=         0.0)
+202599
+Epoch 6/500 Done, Loss =   1.1866e+04 (l[xt<-xt1]=  1.1866e+04,l[x0<-x1]=         0.0)
+Total Time Elapsed=18033        seconds
+-----------------------------------------------------------
+Epoch 7......Step: 500/3166....... Loss=  5.9244e+06 (l[xt<-xt1]=  5.9244e+06,l[x0<-x1]=         0.0)
+Epoch 7......Step: 1000/3166....... Loss=  1.1847e+07 (l[xt<-xt1]=  1.1847e+07,l[x0<-x1]=         0.0)
+Epoch 7......Step: 1500/3166....... Loss=   1.777e+07 (l[xt<-xt1]=   1.777e+07,l[x0<-x1]=         0.0)
+Epoch 7......Step: 2000/3166....... Loss=  2.3675e+07 (l[xt<-xt1]=  2.3675e+07,l[x0<-x1]=         0.0)

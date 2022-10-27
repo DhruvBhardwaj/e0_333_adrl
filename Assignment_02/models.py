@@ -213,6 +213,32 @@ class DiffusionNet(nn.Module):
             loss = loss1# + loss2
             return loss, loss1, loss2
 
+    def sample(self,N=10):
+        self.net.eval()
+        samples=[]
+        sample_idxs = torch.linspace(1,self.cfg['T'],steps=int(self.cfg['T']/10))
+
+        x = torch.randn((N,self.cfg['d']))
+        for t in range(self.cfg.['T']-1,0,-1):
+            if(t>1):
+                z = ((1-self.alpha_t[t])**0.5)*torch.randn((N,self.cfg['d']))
+            else:
+                z = 0
+
+            e=self.net(x,t)
+            k = (1-self.alpha_t[t])/((1-self.alphabar_t[t])**0.5)
+            x = x-(k*e)
+            x = (1/(self.alpha_t[t]**0.5))*x
+            x = x + z
+            temp = (sample_idxs == t).nonzero(as_tuple=False)
+            if(temp.numel>0):
+                samples.append({
+                    'tIdx':t,
+                    'sample':x
+                })
+                            
+        self.net.train()
+        return samples
 if __name__ == '__main__':
     from config_1a_celeba import cfg
 

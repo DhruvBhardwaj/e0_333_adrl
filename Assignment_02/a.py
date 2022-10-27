@@ -10,13 +10,16 @@ import torch
 # print(y)
 # print(y.size())
 
-# x = torch.tensor([[1,2,3,4,2,6,7]])
-# y = (x == 2).nonzero(as_tuple=False)
-# print(y[:,1])
+x = torch.tensor([[1,2,3,4,2,6,7]])
+y = (x == 22).nonzero(as_tuple=False)
+print(y)
+print(y.numel())
 # print(x.size())
 
 # z = torch.randn(50,100)
 # print(z[y[:,1]].size())
 
-aa = torch.randn((128,1200))
-print(torch.cov(aa))
+# aa = torch.randn((128,1200))
+# z = 0
+# k = aa + z
+# print(k.size())

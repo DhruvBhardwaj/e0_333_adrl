@@ -27,7 +27,7 @@ random.seed(seed)
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_celeba.txt')
 #########################################################3
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
@@ -38,9 +38,26 @@ def train():
     model = DiffusionNet(cfg, device)
 
     model.to(device)
-    model.train()
-    
+        
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg['lr'])
+    
+    if(train_cfg['load_from_chkpt']):        
+        chkpt_file = os.path.join(train_cfg['chkpt_path'],train_cfg['chkpt_file'])
+        print('Loading checkpoint from:',chkpt_file)
+        checkpoint = torch.load(chkpt_file)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch_start=1+checkpoint['epoch']
+        loss_start=checkpoint['loss']
+        lxt_xt1_start=checkpoint['lxt_xt1']
+        lx0_x1_start=checkpoint['lx0_x1']
+    else:
+        epoch_start=1
+        loss_start=0.0
+        lxt_xt1_start=0.0
+        lx0_x1_start=0.0
+
+    model.train()
 
     data, N = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
     
@@ -48,11 +65,11 @@ def train():
     print("Starting Training of model")
     epoch_times = []
 
-    for epoch in range(1,train_cfg['num_epochs']+1):        
+    for epoch in range(epoch_start,train_cfg['num_epochs']+1):        
         start_time = time.process_time()        
-        total_loss = 0.0
-        lxt_xt1 = 0.0
-        lx0_x1 = 0.0
+        total_loss = loss_start
+        lxt_xt1 = lxt_xt1_start
+        lx0_x1 = lx0_x1_start
         counter = 0
         for image_batch in data:
             
@@ -82,6 +99,16 @@ def train():
 
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
+        if(epoch%10==0):
+            torch.save({
+                'epoch': epoch,
+                'loss':total_loss,
+                'lxt_xt1':lxt_xt1,
+                'lx0_x1':lx0_x1,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),                
+                }, os.path.join(train_cfg['chkpt_path'],train_cfg['chkpt_file']))
+
         epoch_times.append(current_time-start_time)
         print('-' * 59)
 

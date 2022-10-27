@@ -20,10 +20,13 @@ cfg={
         },
         'training':{
             'batch_size':64,
-            'num_epochs':50,
-            'lr':0.0002,
+            'num_epochs':500,
+            'lr':0.0005,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',
-            'file_extn':'jpg'
+            'file_extn':'jpg',
+            'chkpt_path':'./chkpt/',
+            'chkpt_file':'expt_1a_celeba.chk.pt',
+            'load_from_chkpt':False
         }
     }
