@@ -1,0 +1,29 @@
+cfg={
+        'encoder':{
+            'layers':[
+                [3,64,64],
+                [64,128,128],
+                [128,256,256]                
+            ]
+        },
+        'decoder':{
+            'layers':[                
+                [256,128,128,128],
+                [128,64,64,64]                
+            ]           
+        },
+        'diffusion':{
+            'T':1000,
+            'BETA1':0.0001,
+            'BETAT':0.02,
+            'd':12288 #64x64x3
+        },
+        'training':{
+            'batch_size':96,
+            'num_epochs':50,
+            'lr':0.0002,
+            'save_path':'./logs/',
+            'data_path':'./datasets/img_align_celeba_resampled/',
+            'file_extn':'jpg'
+        }
+    }
