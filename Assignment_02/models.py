@@ -26,6 +26,40 @@ def getPosnEncode(T,d):
 
     return torch.from_numpy(P)
 
+class posnEncoder(nn.Module):
+    def __init__(self, device='cpu', d=None):
+        super(posnEncoder,self).__init__()
+        self.device=device
+        self.d = d
+        if(self.d is not None):
+            self.logn_d = -1.0*(torch.log(torch.tensor([10000])))/self.d
+            self.exp_d = torch.exp(torch.arange(0,self.d,2)*self.logn_d)
+    
+    def forward(self,x,t=None):
+
+        if t is None:
+            return x
+        # t is 1xb, x = bxcxhxw
+        
+        b,c,h,w = x.size()
+        if(self.d is None):
+            self.d = c*h*w
+            self.logn_d = -1.0*(torch.log(torch.tensor([10000])))/self.d
+            self.exp_d = torch.exp(torch.arange(0,self.d,2)*self.logn_d)
+        
+        pEmb = torch.zeros((b,self.d)).to(self.device)
+        x = x.reshape(b,self.d)
+        ct = torch.outer((t+1).squeeze(0),self.exp_d).to(self.device)
+
+
+        pEmb[:,0::2] += ct.sin()
+        pEmb[:,1::2] += ct.cos()
+
+        x = x + pEmb
+        del pEmb
+        x = x.reshape(b,c,h,w)
+        return x
+
 class convBlock(nn.Module):
     def __init__(self, in_channels, out_channels, device):
         super(convBlock,self).__init__()
@@ -36,19 +70,22 @@ class convBlock(nn.Module):
         layers.append(nn.Dropout(0.1))
         layers.append(nn.GroupNorm(4, out_channels[0]))        
         layers.append(nn.ReLU())
+        #layers.append(posnEncoder(self.device))
         layers.append(nn.Conv2d(out_channels[0],out_channels[1],3))
         layers.append(nn.Dropout(0.1))
         layers.append(nn.GroupNorm(4, out_channels[1]))
-        layers.append(nn.ReLU())        
+        layers.append(nn.ReLU())    
+        layers.append(posnEncoder(self.device))    
 
         self.net = nn.ModuleList(layers)#nn.Sequential(*layers)        
 
     def forward(self, x, t=None):        
         for i, l in enumerate(self.net):
-            if isinstance(l, nn.ReLU) and (t is not None):   
-                x = l(x)                     
-                d = x.size(1)*x.size(2)*x.size(3)
-                x = x + pEncode(t,d).reshape(x.size(0),x.size(1),x.size(2),x.size(3)).to(self.device)               
+            #x=l(x)
+            if isinstance(l, posnEncoder) and (t is not None):
+                x = l(x,t)                                    
+                #d = x.size(1)*x.size(2)*x.size(3)
+                #x = x + pEncode(t,d).reshape(x.size(0),x.size(1),x.size(2),x.size(3)).to(self.device)               
             else:
                 x = l(x)
         
@@ -136,7 +173,8 @@ class DiffusionNet(nn.Module):
         self.alpha_t, self.alphabar_t = self.getLinearSchedule()  
         self.beta_t = 1 - self.alpha_t      
         self.sample_const = (self.beta_t)/((1-self.alphabar_t)**0.5)  
-        self.sample_const2 = (1/(self.alpha_t**0.5))      
+        self.sample_const2 = (1/(self.alpha_t**0.5))     
+        self.posnEncode = posnEncoder(self.device) 
         #self.bce_loss = nn.BCELoss(reduction='sum')
         
     def weight_parameters(self):
@@ -163,7 +201,8 @@ class DiffusionNet(nn.Module):
         
         e,e0 = self.getNoisySample(x)        
         
-        e = e + pEncode(self.t,e.size(1)*e.size(2)*e.size(3)).reshape(e.size(0),e.size(1),e.size(2),e.size(3)).to(self.device)
+        #e = e + pEncode(self.t,e.size(1)*e.size(2)*e.size(3)).reshape(e.size(0),e.size(1),e.size(2),e.size(3)).to(self.device)
+        e = self.posnEncode(e,self.t)
         e = self.net(e, self.t)        
         return e, e0
 
@@ -198,6 +237,7 @@ class DiffusionNet(nn.Module):
 
         x = torch.randn((N,3,64,64)).to(self.device)
         for t in range(self.cfg['T']-1,end_T-1,-1):
+            print(t,end = " ")
             if(t>1):
                 z = ((self.beta_t[t]**0.5))*(torch.randn((N,3,64,64)).to(self.device))
             else:
@@ -207,27 +247,31 @@ class DiffusionNet(nn.Module):
             
             x = x-(self.sample_const[t]*e)
             x = self.sample_const2[t]*x
-            x = x + z                                            
+            #x = x + z                                            
         return x
 
 if __name__ == '__main__':
     from config_1a_celeba import cfg
 
-    d = DiffusionNet(cfg,'cpu')
-    x = torch.randn(2,3,64,64)
-    y,_ = d(x)
-    print(y.size())
+    # d = DiffusionNet(cfg,'cpu')
+    # x = torch.randn(2,3,64,64)
+    # y,_ = d(x)
+    # print(y.size())
     
-    # x = torch.randn(5,3*256*256)
+    x = torch.zeros((2,1,2,5))
     
-    # t = torch.randint(low=0,high=10-1,size=(1,2))    
-    # print(t)
-    # pemb = pEncode(t,10)
-    # print(torch.max(pemb),torch.min(pemb))
-    # print(pemb)
-    # P = getPosnEncode(10,10)
-    # print('----')
-    # print(P[t])
+    t = torch.randint(low=0,high=10-1,size=(1,2))    
+    print(t)
+    pemb = pEncode(t,10)
+    print(torch.max(pemb),torch.min(pemb))
+    print(pemb)
+    P = getPosnEncode(10,10)
+    print('----')
+    print(P[t])
+    print('----')
+    pm = posnEncoder('cpu')
+    x = pm(x,t)
+    print(x)
 
     # print(pemb.reshape(5,3,256,256).numpy().shape)
     # import matplotlib.pyplot as plt

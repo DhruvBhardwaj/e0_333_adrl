@@ -26,8 +26,8 @@ random.seed(seed)
 #########################LOGGER#########################
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_celeba.txt')
 #########################################################3
-
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+#torch.autograd.set_detect_anomaly(True)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
@@ -49,15 +49,14 @@ def train():
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch_start=1+checkpoint['epoch']        
     else:
-        epoch_start=1        
-
-    model.eval()
-    x = model.sample(N=2,end_T=1)
-    util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'])
-    print(aaa)
-            
+        epoch_start=1            
+    
+    # model.eval()
+    # x = model.sample(N=2,end_T=1)
+    # util.save_image_to_file(epoch_start-1,0.5*(x+1),train_cfg['save_path'])
+    # print(aaa)
     model.train()
-
+    
     data, N = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
     
     print('-' * 59)
@@ -74,7 +73,7 @@ def train():
             counter += 1            
             optimizer.zero_grad()           
             
-            e_hat, e = model.forward(image_batch.to(device)) 
+            e_hat, e = model(image_batch.to(device)) 
                     
             loss = model.criterion(image_batch.to(device), e_hat, e)
             loss.backward()
