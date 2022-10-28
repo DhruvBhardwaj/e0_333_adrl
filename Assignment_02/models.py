@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torchvision.transforms import CenterCrop
 import numpy as np
+import torch.nn.functional as F
 
 def pEncode(t, d):
     pEmb = torch.zeros((t.size(1),d))
@@ -32,11 +33,13 @@ class convBlock(nn.Module):
         layers =[]
 
         layers.append(nn.Conv2d(in_channels,out_channels[0],3))
-        layers.append(nn.GroupNorm(4, out_channels[0]))
+        layers.append(nn.Dropout(0.1))
+        layers.append(nn.GroupNorm(4, out_channels[0]))        
         layers.append(nn.ReLU())
         layers.append(nn.Conv2d(out_channels[0],out_channels[1],3))
+        layers.append(nn.Dropout(0.1))
         layers.append(nn.GroupNorm(4, out_channels[1]))
-        layers.append(nn.ReLU())
+        layers.append(nn.ReLU())        
 
         self.net = nn.ModuleList(layers)#nn.Sequential(*layers)        
 
@@ -120,7 +123,7 @@ class uNet(nn.Module):
                 x = l(torch.cat([x, enc_map], axis=1), None)                
             
         x = self.tanh(self.conv1(self.upconv(x)))
-        x = 0.5*(x+1)   
+        #x = 0.5*(x+1)   
         return x
 
 class DiffusionNet(nn.Module):
@@ -130,10 +133,18 @@ class DiffusionNet(nn.Module):
         self.cfg = cfg['diffusion']        
         self.device = device
         self.net = uNet(cfg, self.device)        
-        self.alpha_t, self.alphabar_t = self.getLinearSchedule()                
-        self.bce_loss = nn.BCELoss(reduction='sum')
+        self.alpha_t, self.alphabar_t = self.getLinearSchedule()  
+        self.beta_t = 1 - self.alpha_t      
+        self.sample_const = (self.beta_t)/((1-self.alphabar_t)**0.5)  
+        self.sample_const2 = (1/(self.alpha_t**0.5))      
+        #self.bce_loss = nn.BCELoss(reduction='sum')
         
+    def weight_parameters(self):
+        return [param for name, param in self.named_parameters() if 'weight' in name]
 
+    def bias_parameters(self):
+        return [param for name, param in self.named_parameters() if 'bias' in name]
+        
     def getLinearSchedule(self):
         beta1 = self.cfg['BETA1']
         betaT = self.cfg['BETAT']
@@ -171,74 +182,34 @@ class DiffusionNet(nn.Module):
         e = torch.reshape(e.permute(1,0),(b,c,h,w)).float()
         return e, e0    
 
-    # def criterion(self,x,e,e0):
-        
-    #     t = self.t
-    #     t_is1 = (t == 0).nonzero(as_tuple=False)
-    #     t_isNot1 = (t != 0).nonzero(as_tuple=False)
-        
-    #     e = torch.flatten(e,start_dim=1)
-    #     e0 = e0.permute(1,0)
-        
-    #     diff_e = e[t_isNot1[:,1]]-e0[t_isNot1[:,1]]
-    #     diff_norm = torch.linalg.vector_norm(diff_e,dim=1,keepdim=True)        
-    #     loss1 = torch.sum(diff_norm**2)
-        
-    #     # For eq (13) only
-    #     # alphabar_t = self.alphabar_t[t]
-    #     # alpha_t = self.alpha_t[t]
-    #     # const = ((1-alpha_t)/(2*(alpha_t)*(1-alphabar_t))).permute(1,0)
-    #     #loss = torch.sum(const*diff_norm) 
-
-    #     if(t_is1.numel()>0):            
-    #         x = torch.flatten(x,start_dim=1)
-    #         loss2 = self.bce_loss(e[t_is1[:,1]],x[t_is1[:,1]])            
-    #     else:
-    #         loss2 = torch.tensor([0]).to(self.device)            
-
-    #     loss = loss1 + loss2
-    #     return loss, loss1, loss2
-
     def criterion(self,x,e,e0):
             
             e = torch.flatten(e,start_dim=1)
             e0 = e0.permute(1,0)
             
             diff_e = e-e0
-            diff_norm = torch.linalg.vector_norm(diff_e,dim=1,keepdim=True)        
-            loss1 = torch.sum(diff_norm**2)
+            diff_norm = torch.linalg.norm(diff_e,dim=1,keepdim=True)        
+            loss = torch.sum(diff_norm**2)
             
-            loss2 = torch.tensor([0]).to(self.device)            
+            return loss
 
-            loss = loss1# + loss2
-            return loss, loss1, loss2
-
-    def sample(self,N=10):
-        self.net.eval()
-        samples=[]
-        sample_idxs = torch.linspace(1,self.cfg['T'],steps=int(self.cfg['T']/10))
+    def sample(self,N=10, end_T=1):        
+        samples=[]        
 
         x = torch.randn((N,3,64,64)).to(self.device)
-        for t in range(self.cfg['T']-1,0,-1):
+        for t in range(self.cfg['T']-1,end_T-1,-1):
             if(t>1):
-                z = ((1-self.alpha_t[t])**0.5)*(torch.randn((N,3,64,64)).to(self.device))
+                z = ((self.beta_t[t]**0.5))*(torch.randn((N,3,64,64)).to(self.device))
             else:
                 z = 0
 
             e=self.net(x,t*torch.ones((1,N)))
-            k = (1-self.alpha_t[t])/((1-self.alphabar_t[t])**0.5)
-            x = x-(k*e)
-            x = (1/(self.alpha_t[t]**0.5))*x
-            x = x + z
-            temp = (sample_idxs == t).nonzero(as_tuple=False)
-            if(temp.numel()>0):
-                samples.append({
-                    'tIdx':t,
-                    'sample':x
-                })
-                            
-        self.net.train()
-        return samples
+            
+            x = x-(self.sample_const[t]*e)
+            x = self.sample_const2[t]*x
+            x = x + z                                            
+        return x
+
 if __name__ == '__main__':
     from config_1a_celeba import cfg
 

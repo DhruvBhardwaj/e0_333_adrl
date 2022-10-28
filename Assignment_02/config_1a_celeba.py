@@ -21,7 +21,7 @@ cfg={
         'training':{
             'batch_size':64,
             'num_epochs':500,
-            'lr':0.0005,
+            'lr':0.001,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',
             'file_extn':'jpg',

@@ -47,16 +47,15 @@ def train():
         checkpoint = torch.load(chkpt_file)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch_start=1+checkpoint['epoch']
-        loss_start=checkpoint['loss']
-        lxt_xt1_start=checkpoint['lxt_xt1']
-        lx0_x1_start=checkpoint['lx0_x1']
+        epoch_start=1+checkpoint['epoch']        
     else:
-        epoch_start=1
-        loss_start=0.0
-        lxt_xt1_start=0.0
-        lx0_x1_start=0.0
+        epoch_start=1        
 
+    model.eval()
+    x = model.sample(N=2,end_T=1)
+    util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'])
+    print(aaa)
+            
     model.train()
 
     data, N = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
@@ -67,9 +66,8 @@ def train():
 
     for epoch in range(epoch_start,train_cfg['num_epochs']+1):        
         start_time = time.process_time()        
-        total_loss = loss_start
-        lxt_xt1 = lxt_xt1_start
-        lx0_x1 = lx0_x1_start
+        total_loss = 0.0
+        
         counter = 0
         for image_batch in data:
             
@@ -78,36 +76,34 @@ def train():
             
             e_hat, e = model.forward(image_batch.to(device)) 
                     
-            loss, lxt, lx0 = model.criterion(image_batch.to(device), e_hat, e)
+            loss = model.criterion(image_batch.to(device), e_hat, e)
             loss.backward()
             optimizer.step()
             
-            total_loss += loss.item()
-            lxt_xt1 += lxt.item()
-            lx0_x1 += lx0.item()
+            total_loss += loss.item()            
             
             if counter%500 == 0:                
-                print("Epoch {}......Step: {}/{}....... Loss={:12.5} (l[xt<-xt1]={:12.5},l[x0<-x1]={:12.5})"
-                .format(epoch, counter, len(data), total_loss/train_cfg['batch_size'],
-                lxt_xt1/train_cfg['batch_size'],lx0_x1/train_cfg['batch_size']))
+                print("Epoch {}......Step: {}/{}....... Loss={:12.5}"
+                .format(epoch, counter, len(data), total_loss/train_cfg['batch_size']))
         
         current_time = time.process_time()
         print(N)
-        print("Epoch {}/{} Done, Loss = {:12.5} (l[xt<-xt1]={:12.5},l[x0<-x1]={:12.5})"
-                .format(epoch, train_cfg['num_epochs'], total_loss/N,
-                lxt_xt1/N,lx0_x1/N))
+        print("Epoch {}/{} Done, Loss = {:12.5}"
+                .format(epoch, train_cfg['num_epochs'], total_loss/N))
 
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
         if(epoch%10==0):
             torch.save({
                 'epoch': epoch,
-                'loss':total_loss,
-                'lxt_xt1':lxt_xt1,
-                'lx0_x1':lx0_x1,
+                'loss':total_loss,                
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),                
                 }, os.path.join(train_cfg['chkpt_path'],train_cfg['chkpt_file']))
+            model.eval()
+            x = model.sample(N=2,end_T=1)
+            util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'])
+            model.train()
 
         epoch_times.append(current_time-start_time)
         print('-' * 59)

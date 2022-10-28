@@ -27,7 +27,7 @@ class ImageDataset(Dataset):
         #image = image[0,:,:].unsqueeze(0)   
         image=image/255.0        
         image=image.float()                
-        #image = -1.0 + 2.0*image
+        image = -1.0 + 2.0*image
         return image
 
 def getDataloader(data_path, batch_size, extn):
