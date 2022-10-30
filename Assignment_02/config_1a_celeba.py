@@ -13,14 +13,14 @@ cfg={
             ]           
         },
         'diffusion':{
-            'T':500,
+            'T':200,
             'BETA1':0.0001,
             'BETAT':0.02,
             'd':12288 #64x64x3
         },
         'training':{
             'batch_size':64,
-            'num_epochs':500,
+            'num_epochs':10,
             'lr':0.001,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',
@@ -28,5 +28,9 @@ cfg={
             'chkpt_path':'./chkpt/',
             'chkpt_file':'expt_1a_celeba.chk.pt',
             'load_from_chkpt':False
+        },
+        'ddpm':{
+            'image_size':64,
+            'channels':3
         }
     }

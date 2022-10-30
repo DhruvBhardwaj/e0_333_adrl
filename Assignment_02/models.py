@@ -68,12 +68,14 @@ class convBlock(nn.Module):
 
         layers.append(nn.Conv2d(in_channels,out_channels[0],3))
         layers.append(nn.Dropout(0.1))
-        layers.append(nn.GroupNorm(4, out_channels[0]))        
+        layers.append(nn.BatchNorm2d(out_channels[0]))
+        #layers.append(nn.GroupNorm(4, out_channels[0]))        
         layers.append(nn.ReLU())
         #layers.append(posnEncoder(self.device))
         layers.append(nn.Conv2d(out_channels[0],out_channels[1],3))
         layers.append(nn.Dropout(0.1))
-        layers.append(nn.GroupNorm(4, out_channels[1]))
+        layers.append(nn.BatchNorm2d(out_channels[1]))
+        #layers.append(nn.GroupNorm(4, out_channels[1]))
         layers.append(nn.ReLU())    
         layers.append(posnEncoder(self.device))    
 
@@ -157,7 +159,7 @@ class uNet(nn.Module):
                 x = l(x)
             else:
                 enc_map = CenterCrop([x.size(2), x.size(3)])(enc_out[N-2-i])         
-                x = l(torch.cat([x, enc_map], axis=1), None)                
+                x = l(torch.cat([x, enc_map], axis=1), t)                
             
         x = self.tanh(self.conv1(self.upconv(x)))
         #x = 0.5*(x+1)   
@@ -221,15 +223,15 @@ class DiffusionNet(nn.Module):
         e = torch.reshape(e.permute(1,0),(b,c,h,w)).float()
         return e, e0    
 
-    def criterion(self,x,e,e0):
+    def criterion(self,e,e0):
             
             e = torch.flatten(e,start_dim=1)
             e0 = e0.permute(1,0)
             
-            diff_e = e-e0
-            diff_norm = torch.linalg.norm(diff_e,dim=1,keepdim=True)        
-            loss = torch.sum(diff_norm**2)
-            
+            #diff_e = e-e0
+            #diff_norm = torch.linalg.norm(diff_e,dim=1,keepdim=True)        
+            #loss = torch.sum(diff_norm**2)
+            loss = F.mse_loss(e,e0, reduction='sum')
             return loss
 
     def sample(self,N=10, end_T=1):        
@@ -253,25 +255,30 @@ class DiffusionNet(nn.Module):
 if __name__ == '__main__':
     from config_1a_celeba import cfg
 
-    # d = DiffusionNet(cfg,'cpu')
+    d = DiffusionNet(cfg,'cpu')
+    d.train(True)
+    print(d.alpha_t.requires_grad, d.alphabar_t.requires_grad)
+    print(d.beta_t.requires_grad)
+    print(d.sample_const.requires_grad, d.sample_const2.requires_grad)
+   
     # x = torch.randn(2,3,64,64)
     # y,_ = d(x)
     # print(y.size())
     
-    x = torch.zeros((2,1,2,5))
+    # x = torch.zeros((2,1,2,5))
     
-    t = torch.randint(low=0,high=10-1,size=(1,2))    
-    print(t)
-    pemb = pEncode(t,10)
-    print(torch.max(pemb),torch.min(pemb))
-    print(pemb)
-    P = getPosnEncode(10,10)
-    print('----')
-    print(P[t])
-    print('----')
-    pm = posnEncoder('cpu')
-    x = pm(x,t)
-    print(x)
+    # t = torch.randint(low=0,high=10-1,size=(1,2))    
+    # print(t)
+    # pemb = pEncode(t,10)
+    # print(torch.max(pemb),torch.min(pemb))
+    # print(pemb)
+    # P = getPosnEncode(10,10)
+    # print('----')
+    # print(P[t])
+    # print('----')
+    # pm = posnEncoder('cpu')
+    # x = pm(x,t)
+    # print(x)
 
     # print(pemb.reshape(5,3,256,256).numpy().shape)
     # import matplotlib.pyplot as plt

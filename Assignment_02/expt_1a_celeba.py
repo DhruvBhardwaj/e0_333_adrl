@@ -9,7 +9,8 @@ import os
 from config_1a_celeba import cfg
 from datasets import getDataloader
 import utils as util
-from models import DiffusionNet
+#from models import DiffusionNet
+from ddpm_models import DiffusionNet
 #########################################################3
 seed = 42
 os.environ['PYTHONHASHSEED'] = str(seed)
@@ -51,10 +52,6 @@ def train():
     else:
         epoch_start=1            
     
-    # model.eval()
-    # x = model.sample(N=2,end_T=1)
-    # util.save_image_to_file(epoch_start-1,0.5*(x+1),train_cfg['save_path'])
-    # print(aaa)
     model.train()
     
     data, N = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
@@ -72,10 +69,10 @@ def train():
             
             counter += 1            
             optimizer.zero_grad()           
-            
+
             e_hat, e = model(image_batch.to(device)) 
                     
-            loss = model.criterion(image_batch.to(device), e_hat, e)
+            loss = model.criterion(e_hat, e)
             loss.backward()
             optimizer.step()
             
@@ -92,15 +89,14 @@ def train():
 
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
-        if(epoch%10==0):
+        if(epoch%5==0):
             torch.save({
                 'epoch': epoch,
                 'loss':total_loss,                
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),                
-                }, os.path.join(train_cfg['chkpt_path'],train_cfg['chkpt_file']))
-            model.eval()
-            x = model.sample(N=2,end_T=1)
+                }, os.path.join(cfg['chkpt_path'],train_cfg['chkpt_file']))            
+            x = model.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])
             util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'])
             model.train()
 
@@ -111,4 +107,5 @@ def train():
     return model
 
 if __name__ == '__main__':
+    print(cfg)
     model = train()
