@@ -3,6 +3,7 @@ from inspect import isfunction
 from functools import partial
 
 from tqdm.auto import tqdm
+import utils as util
 from einops import rearrange
 
 import torch
@@ -313,13 +314,13 @@ class DiffusionNet(nn.Module):
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * model(x, t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * self.net(x, t) / sqrt_one_minus_alphas_cumprod_t
         )
 
         if t_index == 0:
             return model_mean
         else:
-            posterior_variance_t = extract(posterior_variance, t, x.shape).to(self.device)
+            posterior_variance_t = extract(self.posterior_variance, t, x.shape).to(self.device)
             noise = torch.randn_like(x)
             # Algorithm 2 line 4:
             return model_mean + torch.sqrt(posterior_variance_t) * noise 
@@ -335,7 +336,7 @@ class DiffusionNet(nn.Module):
 
         for i in tqdm(reversed(range(0, self.cfg['T'])), desc='sampling loop time step', total=self.cfg['T']):
             img = self.p_sample(img, torch.full((b,), i, device=self.device, dtype=torch.long), i)
-            imgs.append(img.cpu().numpy())
+            imgs.append(img.cpu())
         return imgs
 
     @torch.no_grad()
@@ -362,4 +363,7 @@ if __name__ == '__main__':
     d = DiffusionNet(cfg,'cpu')
     x = torch.randn(2,3,64,64)
     y = d(x)
-    print(y[0].size())
+    x = d.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])            
+    print(len(x))
+    print(x[0].size())
+    util.save_image_to_file(999,0.5*(x[-1]+1),cfg['training']['save_path'],'TT')

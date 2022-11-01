@@ -13,14 +13,14 @@ cfg={
             ]           
         },
         'diffusion':{
-            'T':200,
+            'T':500,
             'BETA1':0.0001,
             'BETAT':0.02,
             'd':12288 #64x64x3
         },
         'training':{
-            'batch_size':64,
-            'num_epochs':10,
+            'batch_size':128,
+            'num_epochs':15,
             'lr':0.001,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',

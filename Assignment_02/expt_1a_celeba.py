@@ -90,14 +90,17 @@ def train():
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
         if(epoch%5==0):
+            x = model.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])
             torch.save({
                 'epoch': epoch,
                 'loss':total_loss,                
                 'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),                
-                }, os.path.join(cfg['chkpt_path'],train_cfg['chkpt_file']))            
-            x = model.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])
-            util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'])
+                'optimizer_state_dict': optimizer.state_dict(),                 
+                }, os.path.join(train_cfg['chkpt_path'],'e' + str(epoch) + '_' + train_cfg['chkpt_file']))            
+            
+            
+            util.save_image_to_file(epoch,0.5*(x[0]+1),train_cfg['save_path'],'TT_')
+            util.save_image_to_file(epoch,0.5*(x[-1]+1),train_cfg['save_path'],'T0_')
             model.train()
 
         epoch_times.append(current_time-start_time)
