@@ -110,7 +110,7 @@ def train():
     print("Total Training Time={:12.5} seconds".format(str(sum(epoch_times))))
     return model
 
-def sample_images_from_model(cfg,chkpt_file,num_samples, t=None):
+def sample_images_from_model(cfg,chkpt_file,num_samples, t_list=None):
 
     model = DiffusionNet(cfg, device)
     model.to(device)
@@ -123,16 +123,22 @@ def sample_images_from_model(cfg,chkpt_file,num_samples, t=None):
     
     model.eval()
     x = model.sample(cfg['ddpm']['image_size'],num_samples,cfg['ddpm']['channels'])
-    
-    if(t is not None):
-        x = x[t]
-
-    print(x.size())
-    return x
+    print(len(x))
+    print(x[0].size())
+    timed_samples=[]
+    if(t_list is not None):        
+        for t in t_list:
+            timed_samples.append(x[t])
+    print(len(timed_samples))
+    print(timed_samples[0].size())
+    return x, timed_samples
 
 if __name__ == '__main__':
     print(cfg)
-    model = train()
+    #model = train()
 
-    #chkpt_file = ''
-    #x = sample_images_from_model(cfg,chkpt_file,10)
+    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/celeba/e15_expt_1a_celeba.chk.pt'
+    # x,timed_samples = sample_images_from_model(cfg,chkpt_file,10,[i for i in range(0,500,49)])
+    # timed_samples=torch.cat(timed_samples,dim=0)
+    # print(timed_samples.size())
+    # util.save_image_to_file(000,0.5*(timed_samples+1),train_cfg['save_path'],'timed_samples_')
