@@ -109,6 +109,29 @@ def train():
     print("Total Training Time={:12.5} seconds".format(str(sum(epoch_times))))
     return model
 
+def sample_images_from_model(cfg,chkpt_file,num_samples, t=None):
+
+    model = DiffusionNet(cfg, device)
+    model.to(device)
+
+    train_cfg=cfg['training']
+    
+    print('Loading checkpoint from:',chkpt_file)
+    checkpoint = torch.load(chkpt_file)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    
+    model.eval()
+    x = model.sample(cfg['ddpm']['image_size'],num_samples,cfg['ddpm']['channels'])
+    
+    if(t is not None):
+        x = x[t]
+
+    print(x.size())
+    return x
+
 if __name__ == '__main__':
     print(cfg)
     model = train()
+
+    #chkpt_file = ''
+    #x = sample_images_from_model(cfg,chkpt_file,10)

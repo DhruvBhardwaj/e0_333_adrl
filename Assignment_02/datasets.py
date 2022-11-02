@@ -1,7 +1,8 @@
 import torch
 import numpy
 import random
-import config_1a_celeba as config
+#import config_1a_celeba as config
+import config_1a_bitmojis as config
 
 from torchvision.io import ImageReadMode
 import os, os.path
@@ -23,7 +24,7 @@ class ImageDataset(Dataset):
     def __getitem__(self,index):     
         #print(self.img_list[index])
         image=read_image(self.img_folder+'/'+self.img_list[index])    
-        #print(image.size())   
+        print(image.size())   
         #image = image[0,:,:].unsqueeze(0)   
         image=image/255.0        
         image=image.float()                
@@ -40,7 +41,7 @@ def getDataloader(data_path, batch_size, extn):
 
 if __name__ == '__main__':
     train_cfg = config.cfg['training']
-    data = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
+    data, data_length = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
     for image_batch in data:        
         print(image_batch.size())
         print(torch.max(image_batch[0,:,:,:]),torch.min(image_batch[0,:,:,:]))

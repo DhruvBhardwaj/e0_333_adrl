@@ -1,0 +1,36 @@
+cfg={
+        'encoder':{
+            'layers':[
+                [3,64,64],
+                [64,128,128],
+                [128,256,256]                
+            ]
+        },
+        'decoder':{
+            'layers':[                
+                [256,128,128,128],
+                [128,64,64,64]                
+            ]           
+        },
+        'diffusion':{
+            'T':500,
+            'BETA1':0.0001,
+            'BETAT':0.02,
+            'd':49152 #128x128x3
+        },
+        'training':{
+            'batch_size':64,
+            'num_epochs':15,
+            'lr':0.001,
+            'save_path':'./logs/',
+            'data_path':'/home/dhruvb/adrl/datasets/bitmojis/bitmojis/',
+            'file_extn':'png',
+            'chkpt_path':'./chkpt/',
+            'chkpt_file':'expt_1a_bitmojis.chk.pt',
+            'load_from_chkpt':False
+        },
+        'ddpm':{
+            'image_size':128,
+            'channels':3
+        }
+    }
