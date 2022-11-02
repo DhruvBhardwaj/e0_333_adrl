@@ -1,25 +1,9 @@
-cfg={
-        'encoder':{
-            'layers':[
-                [3,64,64],
-                [64,128,128],
-                [128,256,256]                
-            ]
-        },
-        'decoder':{
-            'layers':[                
-                [256,128,128,128],
-                [128,64,64,64]                
-            ]           
-        },
+cfg={        
         'diffusion':{
-            'T':500,
-            'BETA1':0.0001,
-            'BETAT':0.02,
-            'd':49152 #128x128x3
+            'T':400            
         },
         'training':{
-            'batch_size':64,
+            'batch_size':32,
             'num_epochs':15,
             'lr':0.001,
             'save_path':'./logs/',

@@ -1,0 +1,436 @@
+cuda
+{'encoder': {'layers': [[3, 64, 64], [64, 128, 128], [128, 256, 256]]}, 'decoder': {'layers': [[256, 128, 128, 128], [128, 64, 64, 64]]}, 'diffusion': {'T': 500, 'BETA1': 0.0001, 'BETAT': 0.02, 'd': 12288}, 'training': {'batch_size': 128, 'num_epochs': 15, 'lr': 0.001, 'save_path': './logs/', 'data_path': '/home/dhruvb/adrl/datasets/img_align_celeba_resampled/', 'file_extn': 'jpg', 'chkpt_path': './chkpt/', 'chkpt_file': 'expt_1a_celeba.chk.pt', 'load_from_chkpt': False}, 'ddpm': {'image_size': 64, 'channels': 3}}
+-----------------------------------------------------------
+Unet(
+  (init_conv): Conv2d(3, 42, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+  (time_mlp): Sequential(
+    (0): SinusoidalPositionEmbeddings()
+    (1): Linear(in_features=64, out_features=256, bias=True)
+    (2): GELU(approximate=none)
+    (3): Linear(in_features=256, out_features=256, bias=True)
+  )
+  (downs): ModuleList(
+    (0): ModuleList(
+      (0): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=64, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(42, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Conv2d(42, 64, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (1): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=64, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Identity()
+      )
+      (2): Residual(
+        (fn): PreNorm(
+          (fn): LinearAttention(
+            (to_qkv): Conv2d(64, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (to_out): Sequential(
+              (0): Conv2d(128, 64, kernel_size=(1, 1), stride=(1, 1))
+              (1): GroupNorm(1, 64, eps=1e-05, affine=True)
+            )
+          )
+          (norm): GroupNorm(1, 64, eps=1e-05, affine=True)
+        )
+      )
+      (3): Conv2d(64, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    )
+    (1): ModuleList(
+      (0): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=128, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (1): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=128, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Identity()
+      )
+      (2): Residual(
+        (fn): PreNorm(
+          (fn): LinearAttention(
+            (to_qkv): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (to_out): Sequential(
+              (0): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+              (1): GroupNorm(1, 128, eps=1e-05, affine=True)
+            )
+          )
+          (norm): GroupNorm(1, 128, eps=1e-05, affine=True)
+        )
+      )
+      (3): Conv2d(128, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    )
+    (2): ModuleList(
+      (0): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (1): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=256, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Identity()
+      )
+      (2): Residual(
+        (fn): PreNorm(
+          (fn): LinearAttention(
+            (to_qkv): Conv2d(256, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (to_out): Sequential(
+              (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+              (1): GroupNorm(1, 256, eps=1e-05, affine=True)
+            )
+          )
+          (norm): GroupNorm(1, 256, eps=1e-05, affine=True)
+        )
+      )
+      (3): Identity()
+    )
+  )
+  (ups): ModuleList(
+    (0): ModuleList(
+      (0): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=128, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(512, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (1): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=128, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 128, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Identity()
+      )
+      (2): Residual(
+        (fn): PreNorm(
+          (fn): LinearAttention(
+            (to_qkv): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (to_out): Sequential(
+              (0): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+              (1): GroupNorm(1, 128, eps=1e-05, affine=True)
+            )
+          )
+          (norm): GroupNorm(1, 128, eps=1e-05, affine=True)
+        )
+      )
+      (3): ConvTranspose2d(128, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    )
+    (1): ModuleList(
+      (0): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=64, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(256, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (1): ResnetBlock(
+        (mlp): Sequential(
+          (0): SiLU()
+          (1): Linear(in_features=256, out_features=64, bias=True)
+        )
+        (block1): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (block2): Block(
+          (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+          (act): SiLU()
+        )
+        (res_conv): Identity()
+      )
+      (2): Residual(
+        (fn): PreNorm(
+          (fn): LinearAttention(
+            (to_qkv): Conv2d(64, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (to_out): Sequential(
+              (0): Conv2d(128, 64, kernel_size=(1, 1), stride=(1, 1))
+              (1): GroupNorm(1, 64, eps=1e-05, affine=True)
+            )
+          )
+          (norm): GroupNorm(1, 64, eps=1e-05, affine=True)
+        )
+      )
+      (3): ConvTranspose2d(64, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    )
+  )
+  (mid_block1): ResnetBlock(
+    (mlp): Sequential(
+      (0): SiLU()
+      (1): Linear(in_features=256, out_features=256, bias=True)
+    )
+    (block1): Block(
+      (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+      (act): SiLU()
+    )
+    (block2): Block(
+      (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+      (act): SiLU()
+    )
+    (res_conv): Identity()
+  )
+  (mid_attn): Residual(
+    (fn): PreNorm(
+      (fn): Attention(
+        (to_qkv): Conv2d(256, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (to_out): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (norm): GroupNorm(1, 256, eps=1e-05, affine=True)
+    )
+  )
+  (mid_block2): ResnetBlock(
+    (mlp): Sequential(
+      (0): SiLU()
+      (1): Linear(in_features=256, out_features=256, bias=True)
+    )
+    (block1): Block(
+      (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+      (act): SiLU()
+    )
+    (block2): Block(
+      (proj): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (norm): GroupNorm(8, 256, eps=1e-05, affine=True)
+      (act): SiLU()
+    )
+    (res_conv): Identity()
+  )
+  (final_conv): Sequential(
+    (0): ResnetBlock(
+      (block1): Block(
+        (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+        (act): SiLU()
+      )
+      (block2): Block(
+        (proj): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (norm): GroupNorm(8, 64, eps=1e-05, affine=True)
+        (act): SiLU()
+      )
+      (res_conv): Identity()
+    )
+    (1): Conv2d(64, 3, kernel_size=(1, 1), stride=(1, 1))
+  )
+)
+[INFO] DATA_PATH=/home/dhruvb/adrl/datasets/img_align_celeba_resampled/, BATCH_SIZE=128
+[INFO] Found data set with 202599 samples
+-----------------------------------------------------------
+Starting Training of model
+Epoch 1......Step: 500/1583....... Loss=  1.6551e+06
+Epoch 1......Step: 1000/1583....... Loss=  1.9728e+06
+Epoch 1......Step: 1500/1583....... Loss=  2.2652e+06
+202599
+Epoch 1/15 Done, Loss =       1460.8
+Total Time Elapsed=641.3        seconds
+-----------------------------------------------------------
+Epoch 2......Step: 500/1583....... Loss=  2.7535e+05
+Epoch 2......Step: 1000/1583....... Loss=  5.3965e+05
+Epoch 2......Step: 1500/1583....... Loss=  7.9885e+05
+202599
+Epoch 2/15 Done, Loss =       531.35
+Total Time Elapsed=638.3        seconds
+-----------------------------------------------------------
+Epoch 3......Step: 500/1583....... Loss=   2.487e+05
+Epoch 3......Step: 1000/1583....... Loss=  4.9251e+05
+Epoch 3......Step: 1500/1583....... Loss=  7.3396e+05
+202599
+Epoch 3/15 Done, Loss =       489.29
+Total Time Elapsed=637.2        seconds
+-----------------------------------------------------------
+Epoch 4......Step: 500/1583....... Loss=   2.381e+05
+Epoch 4......Step: 1000/1583....... Loss=  4.7327e+05
+Epoch 4......Step: 1500/1583....... Loss=    7.02e+05
+202599
+Epoch 4/15 Done, Loss =       467.29
+Total Time Elapsed=637.5        seconds
+-----------------------------------------------------------
+Epoch 5......Step: 500/1583....... Loss=  2.2601e+05
+Epoch 5......Step: 1000/1583....... Loss=   4.518e+05
+Epoch 5......Step: 1500/1583....... Loss=   6.719e+05
+202599
+Epoch 5/15 Done, Loss =       447.23
+Total Time Elapsed=637.9        seconds
+torch.Size([100, 3, 64, 64])
+torch.Size([100, 3, 64, 64])
+-----------------------------------------------------------
+Epoch 6......Step: 500/1583....... Loss=  2.1737e+05
+Epoch 6......Step: 1000/1583....... Loss=  4.3223e+05
+Epoch 6......Step: 1500/1583....... Loss=  6.4681e+05
+202599
+Epoch 6/15 Done, Loss =       430.97
+Total Time Elapsed=639.0        seconds
+-----------------------------------------------------------
+Epoch 7......Step: 500/1583....... Loss=  2.1291e+05
+Epoch 7......Step: 1000/1583....... Loss=  4.2384e+05
+Epoch 7......Step: 1500/1583....... Loss=  6.3475e+05
+202599
+Epoch 7/15 Done, Loss =       422.36
+Total Time Elapsed=637.0        seconds
+-----------------------------------------------------------
+Epoch 8......Step: 500/1583....... Loss=  2.0809e+05
+Epoch 8......Step: 1000/1583....... Loss=  4.1438e+05
+Epoch 8......Step: 1500/1583....... Loss=  6.2121e+05
+202599
+Epoch 8/15 Done, Loss =       413.63
+Total Time Elapsed=636.9        seconds
+-----------------------------------------------------------
+Epoch 9......Step: 500/1583....... Loss=  2.0303e+05
+Epoch 9......Step: 1000/1583....... Loss=  4.0629e+05
+Epoch 9......Step: 1500/1583....... Loss=  6.0712e+05
+202599
+Epoch 9/15 Done, Loss =       404.98
+Total Time Elapsed=636.8        seconds
+-----------------------------------------------------------
+Epoch 10......Step: 500/1583....... Loss=  2.0296e+05
+Epoch 10......Step: 1000/1583....... Loss=  4.0233e+05
+Epoch 10......Step: 1500/1583....... Loss=  6.0196e+05
+202599
+Epoch 10/15 Done, Loss =       400.94
+Total Time Elapsed=637.0        seconds
+torch.Size([100, 3, 64, 64])
+torch.Size([100, 3, 64, 64])
+-----------------------------------------------------------
+Epoch 11......Step: 500/1583....... Loss=  1.9936e+05
+Epoch 11......Step: 1000/1583....... Loss=  3.9828e+05
+Epoch 11......Step: 1500/1583....... Loss=  5.9374e+05
+202599
+Epoch 11/15 Done, Loss =       396.48
+Total Time Elapsed=635.7        seconds
+-----------------------------------------------------------
+Epoch 12......Step: 500/1583....... Loss=  1.9796e+05
+Epoch 12......Step: 1000/1583....... Loss=  3.9644e+05
+Epoch 12......Step: 1500/1583....... Loss=   5.923e+05
+202599
+Epoch 12/15 Done, Loss =       394.45
+Total Time Elapsed=635.9        seconds
+-----------------------------------------------------------
+Epoch 13......Step: 500/1583....... Loss=  1.9613e+05
+Epoch 13......Step: 1000/1583....... Loss=  3.9118e+05
+Epoch 13......Step: 1500/1583....... Loss=  5.8451e+05
+202599
+Epoch 13/15 Done, Loss =       389.94
+Total Time Elapsed=635.9        seconds
+-----------------------------------------------------------
+Epoch 14......Step: 500/1583....... Loss=  1.9549e+05
+Epoch 14......Step: 1000/1583....... Loss=  3.8988e+05
+Epoch 14......Step: 1500/1583....... Loss=  5.8271e+05
+202599
+Epoch 14/15 Done, Loss =       388.79
+Total Time Elapsed=635.6        seconds
+-----------------------------------------------------------
+Epoch 15......Step: 500/1583....... Loss=  1.9574e+05
+Epoch 15......Step: 1000/1583....... Loss=  3.8849e+05
+Epoch 15......Step: 1500/1583....... Loss=   5.821e+05
+202599
+Epoch 15/15 Done, Loss =        387.7
+Total Time Elapsed=635.8        seconds
+torch.Size([100, 3, 64, 64])
+torch.Size([100, 3, 64, 64])
+-----------------------------------------------------------
+Total Training Time=9558.        seconds

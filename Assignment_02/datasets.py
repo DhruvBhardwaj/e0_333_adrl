@@ -3,6 +3,7 @@ import numpy
 import random
 #import config_1a_celeba as config
 import config_1a_bitmojis as config
+import utils as util
 
 from torchvision.io import ImageReadMode
 import os, os.path
@@ -24,7 +25,7 @@ class ImageDataset(Dataset):
     def __getitem__(self,index):     
         #print(self.img_list[index])
         image=read_image(self.img_folder+'/'+self.img_list[index])    
-        print(image.size())   
+        #print(image.size())   
         #image = image[0,:,:].unsqueeze(0)   
         image=image/255.0        
         image=image.float()                
@@ -46,5 +47,6 @@ if __name__ == '__main__':
         print(image_batch.size())
         print(torch.max(image_batch[0,:,:,:]),torch.min(image_batch[0,:,:,:]))
         print(torch.var(image_batch))
+        util.save_image_to_file(9991,image_batch,config.cfg['training']['save_path'],'bittest')
         break
 

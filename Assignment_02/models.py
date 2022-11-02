@@ -253,17 +253,15 @@ class DiffusionNet(nn.Module):
         return x
 
 if __name__ == '__main__':
-    from config_1a_celeba import cfg
+    #from config_1a_celeba import cfg
+    from config_1a_bitmojis import cfg
 
     d = DiffusionNet(cfg,'cpu')
     d.train(True)
-    print(d.alpha_t.requires_grad, d.alphabar_t.requires_grad)
-    print(d.beta_t.requires_grad)
-    print(d.sample_const.requires_grad, d.sample_const2.requires_grad)
    
-    # x = torch.randn(2,3,64,64)
-    # y,_ = d(x)
-    # print(y.size())
+    x = torch.randn(2,3,128,128)
+    y,_ = d(x)
+    print(y.size())
     
     # x = torch.zeros((2,1,2,5))
     

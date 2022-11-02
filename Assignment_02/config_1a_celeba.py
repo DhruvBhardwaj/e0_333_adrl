@@ -1,22 +1,6 @@
-cfg={
-        'encoder':{
-            'layers':[
-                [3,64,64],
-                [64,128,128],
-                [128,256,256]                
-            ]
-        },
-        'decoder':{
-            'layers':[                
-                [256,128,128,128],
-                [128,64,64,64]                
-            ]           
-        },
+cfg={       
         'diffusion':{
-            'T':500,
-            'BETA1':0.0001,
-            'BETAT':0.02,
-            'd':12288 #64x64x3
+            'T':500            
         },
         'training':{
             'batch_size':128,
@@ -25,7 +9,7 @@ cfg={
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_resampled/',
             'file_extn':'jpg',
-            'chkpt_path':'./chkpt/',
+            'chkpt_path':'./chkpt/celeba/',
             'chkpt_file':'expt_1a_celeba.chk.pt',
             'load_from_chkpt':False
         },

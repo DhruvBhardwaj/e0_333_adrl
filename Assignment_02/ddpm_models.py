@@ -359,11 +359,13 @@ class DiffusionNet(nn.Module):
         return loss
 
 if __name__ == '__main__':
-    from config_1a_celeba import cfg
+    #from config_1a_celeba import cfg
+    from config_1a_bitmojis import cfg
     d = DiffusionNet(cfg,'cpu')
-    x = torch.randn(2,3,64,64)
-    y = d(x)
-    x = d.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])            
-    print(len(x))
-    print(x[0].size())
-    util.save_image_to_file(999,0.5*(x[-1]+1),cfg['training']['save_path'],'TT')
+    x = torch.randn(2,3,128,128)
+    y,_ = d(x)
+    print(y.size())
+    # x = d.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])            
+    # print(len(x))
+    # print(x[0].size())
+    # util.save_image_to_file(999,0.5*(x[-1]+1),cfg['training']['save_path'],'bitm')

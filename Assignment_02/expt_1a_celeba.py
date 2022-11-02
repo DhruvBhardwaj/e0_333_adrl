@@ -7,6 +7,7 @@ import random
 import os
 
 from config_1a_celeba import cfg
+#from config_1a_bitmojis import cfg
 from datasets import getDataloader
 import utils as util
 #from models import DiffusionNet
@@ -25,7 +26,7 @@ random.seed(seed)
 #########################################################3
 #cfg = config.cfg
 #########################LOGGER#########################
-sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_celeba.txt')
+sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_bitmojis.txt')
 #########################################################3
 #torch.autograd.set_detect_anomaly(True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
