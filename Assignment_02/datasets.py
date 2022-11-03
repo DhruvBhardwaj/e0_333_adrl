@@ -8,6 +8,7 @@ import utils as util
 from torchvision.io import ImageReadMode
 import os, os.path
 from torch.utils.data import DataLoader, Dataset
+
 from torchvision.io import read_image
 
 
@@ -45,8 +46,9 @@ if __name__ == '__main__':
     data, data_length = getDataloader(train_cfg['data_path'],train_cfg['batch_size'], train_cfg['file_extn'])
     for image_batch in data:        
         print(image_batch.size())
-        print(torch.max(image_batch[0,:,:,:]),torch.min(image_batch[0,:,:,:]))
-        print(torch.var(image_batch))
-        util.save_image_to_file(9991,image_batch,config.cfg['training']['save_path'],'bittest')
+        
+        #print(torch.max(image_batch[0,:,:,:]),torch.min(image_batch[0,:,:,:]))
+        #print(torch.var(image_batch))
+        #util.save_image_to_file(9991,image_batch,config.cfg['training']['save_path'],'bittest')
         break
 

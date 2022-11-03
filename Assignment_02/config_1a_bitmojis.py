@@ -1,20 +1,20 @@
 cfg={        
         'diffusion':{
-            'T':400            
+            'T':500            
         },
         'training':{
-            'batch_size':32,
+            'batch_size':64,
             'num_epochs':15,
             'lr':0.001,
             'save_path':'./logs/',
-            'data_path':'/home/dhruvb/adrl/datasets/bitmojis/bitmojis/',
+            'data_path':'/home/dhruvb/adrl/datasets/bitmojis_resampled/',
             'file_extn':'png',
             'chkpt_path':'./chkpt/',
             'chkpt_file':'expt_1a_bitmojis.chk.pt',
             'load_from_chkpt':False
         },
         'ddpm':{
-            'image_size':128,
+            'image_size':64,
             'channels':3
         }
     }

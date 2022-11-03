@@ -173,9 +173,10 @@ class Unet(nn.Module):
         with_time_emb=True,
         resnet_block_groups=8,        
         convnext_mult=2,
+        encoder_only=False
     ):
         super().__init__()
-
+        self.encoder_only=encoder_only
         # determine dimensions
         self.channels = channels
 
@@ -223,25 +224,27 @@ class Unet(nn.Module):
         self.mid_block1 = block_klass(mid_dim, mid_dim, time_emb_dim=time_dim)
         self.mid_attn = Residual(PreNorm(mid_dim, Attention(mid_dim)))
         self.mid_block2 = block_klass(mid_dim, mid_dim, time_emb_dim=time_dim)
+        
+        if self.encoder_only is False:
+            print('decoder')
+            for ind, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
+                is_last = ind >= (num_resolutions - 1)
 
-        for ind, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
-            is_last = ind >= (num_resolutions - 1)
-
-            self.ups.append(
-                nn.ModuleList(
-                    [
-                        block_klass(dim_out * 2, dim_in, time_emb_dim=time_dim),
-                        block_klass(dim_in, dim_in, time_emb_dim=time_dim),
-                        Residual(PreNorm(dim_in, LinearAttention(dim_in))),
-                        Upsample(dim_in) if not is_last else nn.Identity(),
-                    ]
+                self.ups.append(
+                    nn.ModuleList(
+                        [
+                            block_klass(dim_out * 2, dim_in, time_emb_dim=time_dim),
+                            block_klass(dim_in, dim_in, time_emb_dim=time_dim),
+                            Residual(PreNorm(dim_in, LinearAttention(dim_in))),
+                            Upsample(dim_in) if not is_last else nn.Identity(),
+                        ]
+                    )
                 )
-            )
 
-        out_dim = default(out_dim, channels)
-        self.final_conv = nn.Sequential(
-            block_klass(dim, dim), nn.Conv2d(dim, out_dim, 1)
-        )
+            out_dim = default(out_dim, channels)
+            self.final_conv = nn.Sequential(
+                block_klass(dim, dim), nn.Conv2d(dim, out_dim, 1)
+            )
 
     def forward(self, x, time):
         x = self.init_conv(x)
@@ -264,14 +267,39 @@ class Unet(nn.Module):
         x = self.mid_block2(x, t)
 
         # upsample
-        for block1, block2, attn, upsample in self.ups:
-            x = torch.cat((x, h.pop()), dim=1)
-            x = block1(x, t)
-            x = block2(x, t)
-            x = attn(x)
-            x = upsample(x)
+        if self.encoder_only is False:
+            print('decoder')
+            for block1, block2, attn, upsample in self.ups:
+                x = torch.cat((x, h.pop()), dim=1)
+                x = block1(x, t)
+                x = block2(x, t)
+                x = attn(x)
+                x = upsample(x)
+            
+            x = self.final_conv(x)
 
-        return self.final_conv(x)
+        return x
+
+class DiffusionClassifier(nn.Module):
+    def __init__(self,cfg,num_classes, device):
+        super(DiffusionClassifier,self).__init__()
+        self.cfg=cfg
+        self.num_classes = num_classes
+        self.net=Unet(dim=cfg['ddpm']['image_size'], channels=cfg['ddpm']['channels'],dim_mults=(1, 2, 4,),encoder_only=True)
+        
+        self.dense1 = nn.Linear(256*16*16,1024)
+        self.dense2 = nn.Linear(1024,self.num_classes)
+
+        self.device = device
+
+    def forward(self,x):
+        self.t = torch.randint(low=0,high=self.cfg['diffusion']['T']-1,size=(x.size(0),),device=self.device).long()
+
+        x = self.net(x,self.t)
+        x = torch.flatten(x,start_dim=1)
+        x = self.dense1(x)
+        x = self.dense2(x)
+        return F.softmax(x,dim=1)
 
 class DiffusionNet(nn.Module):
     def __init__(self,cfg, device):
@@ -311,8 +339,6 @@ class DiffusionNet(nn.Module):
         ).to(self.device)
         sqrt_recip_alphas_t = extract(self.sqrt_recip_alphas, t, x.shape).to(self.device)
         
-        # Equation 11 in the paper
-        # Use our model (noise predictor) to predict the mean
         model_mean = sqrt_recip_alphas_t * (
             x - betas_t * self.net(x, t) / sqrt_one_minus_alphas_cumprod_t
         )
@@ -322,7 +348,7 @@ class DiffusionNet(nn.Module):
         else:
             posterior_variance_t = extract(self.posterior_variance, t, x.shape).to(self.device)
             noise = torch.randn_like(x)
-            # Algorithm 2 line 4:
+
             return model_mean + torch.sqrt(posterior_variance_t) * noise 
 
 
@@ -359,12 +385,15 @@ class DiffusionNet(nn.Module):
         return loss
 
 if __name__ == '__main__':
-    #from config_1a_celeba import cfg
-    from config_1a_bitmojis import cfg
-    d = DiffusionNet(cfg,'cpu')
-    x = torch.randn(2,3,128,128)
-    y,_ = d(x)
+    from config_1a_celeba import cfg
+    #from config_1a_bitmojis import cfg
+    
+    d = DiffusionClassifier(cfg,10,'cpu')
+    x = torch.randn(2,3,64,64)
+    y = d(x)
     print(y.size())
+    print(y)
+    
     # x = d.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])            
     # print(len(x))
     # print(x[0].size())

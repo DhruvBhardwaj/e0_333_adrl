@@ -7,6 +7,7 @@ from torchvision.utils import save_image
 import torchvision.transforms as T
 from torchvision.io import read_image
 import sys
+import config_1a_bitmojis as config
 
 class Logger(object):
     def __init__(self, dir1='logs', filename="Default.log"):
@@ -24,15 +25,15 @@ class Logger(object):
 
 
 
-def create_resampled_images():
+def create_resampled_images(in_path,out_path,extn):
     transform = T.Resize((64,64))
 
-    dl = DS.getDataloader(cfg.DATA_PATH,cfg.BATCH_SIZE)
+    dl,_ = DS.getDataloader(in_path,32,extn)
     k=0
     for image_batch in dl:
         print(image_batch.size())
         for i in range(0,image_batch.size(0)):
-            save_image(transform(image_batch[i]),'./datasets/img_align_celeba_resampled/' + str(k) + '.jpg') 
+            save_image(transform(image_batch[i]),out_path + '/' + str(k) + extn) 
             k +=1
 
     print(k)
@@ -61,6 +62,7 @@ def return_random_batch_from_dir(img_folder, file_extn, num_samples):
         print(samples.size())
     return samples
 
-#save_image_to_file(0,torch.randn(100,3,64,64))
-#create_resampled_images()
-#return_random_batch_from_dir('./datasets/tiny_imagenet/', '.JPEG', 10)
+if __name__ == '__main__':
+    #save_image_to_file(0,torch.randn(100,3,64,64))
+    create_resampled_images('/home/dhruvb/adrl/datasets/bitmojis/bitmojis/','/home/dhruvb/adrl/datasets/bitmojis_resampled/','.png')
+    #return_random_batch_from_dir('./datasets/tiny_imagenet/', '.JPEG', 10)

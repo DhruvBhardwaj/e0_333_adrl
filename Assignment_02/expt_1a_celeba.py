@@ -6,8 +6,8 @@ import sys
 import random
 import os
 
-from config_1a_celeba import cfg
-#from config_1a_bitmojis import cfg
+#from config_1a_celeba import cfg
+from config_1a_bitmojis import cfg
 from datasets import getDataloader
 import utils as util
 #from models import DiffusionNet
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     print(cfg)
     #model = train()
 
-    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/celeba/e15_expt_1a_celeba.chk.pt'
+    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/bitmoji/e15_expt_1a_bitmojis.chk.pt'
     # x,timed_samples = sample_images_from_model(cfg,chkpt_file,10,[i for i in range(0,500,49)])
     # timed_samples=torch.cat(timed_samples,dim=0)
     # print(timed_samples.size())
