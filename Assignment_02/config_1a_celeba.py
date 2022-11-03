@@ -18,8 +18,8 @@ cfg={
             'channels':3
         },
         'classifier':{
-            'num_classes':40,
-            'batch_size':128,
+            'num_classes':10,
+            'batch_size':64,
             'num_epochs':15,
             'lr':0.001,
             'save_path':'./logs/',

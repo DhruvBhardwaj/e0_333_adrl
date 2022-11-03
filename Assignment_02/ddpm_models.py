@@ -267,8 +267,7 @@ class Unet(nn.Module):
         x = self.mid_block2(x, t)
 
         # upsample
-        if self.encoder_only is False:
-            print('decoder')
+        if self.encoder_only is False:            
             for block1, block2, attn, upsample in self.ups:
                 x = torch.cat((x, h.pop()), dim=1)
                 x = block1(x, t)
@@ -300,6 +299,7 @@ class DiffusionClassifier(nn.Module):
         self.dense2 = nn.Linear(1024,self.num_classes)
 
         self.device = device
+        print(self.net)
 
     def forward(self,x):
         self.t = torch.randint(low=0,high=self.cfg['diffusion']['T']-1,size=(x.size(0),),device=self.device).long()

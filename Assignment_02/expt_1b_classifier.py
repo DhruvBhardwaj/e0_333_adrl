@@ -38,6 +38,20 @@ print(device)
 classifier_cfg = cfg['classifier']
 
 #########################################################3
+def validate(model, valid_loader, criterion):
+    model.eval()
+    total_loss = 0.0
+    for data in valid_loader:
+        image_batch, label = data                  
+
+        label_hat = model(image_batch.to(device)) 
+                    
+        loss = criterion(label_hat, label.to(device))        
+            
+        total_loss += loss.item() 
+    
+    model.train()
+    return total_loss
 
 def train():
     print('-' * 59)
@@ -59,7 +73,12 @@ def train():
         epoch_start=1            
     
     model.train()
-    transform = transforms.Compose([transforms.ToTensor()])
+    
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0., 0., 0.], std=[1., 1., 1.])
+        ])
+
     train_dataset = ImageFolder(root=os.path.join(classifier_cfg['data_path'],'train'),transform=transform)
     val_dataset = ImageFolder(root=os.path.join(classifier_cfg['data_path'],'val'),transform=transform)
 
@@ -90,29 +109,25 @@ def train():
             total_loss += loss.item()            
             
             if counter%500 == 0:                
-                print("Epoch {}......Step: {}/{}....... Loss={:12.5}"
-                .format(epoch, counter, len(data), total_loss/classifier_cfg['batch_size']))
+                print("Epoch {}......Step: {}....... Loss={:12.5}"
+                .format(epoch, counter, total_loss))
         
-        current_time = time.process_time()
-        print(N)
+        current_time = time.process_time()        
         print("Epoch {}/{} Done, Loss = {:12.5}"
-                .format(epoch, classifier_cfg['num_epochs'], total_loss/N))
+                .format(epoch, classifier_cfg['num_epochs'], total_loss))
+        val_loss = validate(model, valid_loader, criterion)
+        print("Epoch {}/{} Done, Val Loss = {:12.5}"
+                .format(epoch, classifier_cfg['num_epochs'], val_loss))
 
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
-        if(epoch%5==0):
-            x = model.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])
+        if(epoch%10==0):            
             torch.save({
                 'epoch': epoch,
                 'loss':total_loss,                
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),                 
-                }, os.path.join(classifier_cfg['chkpt_path'],'e' + str(epoch) + '_' + classifier_cfg['chkpt_file']))            
-            
-            
-            util.save_image_to_file(epoch,0.5*(x[0]+1),classifier_cfg['save_path'],'TT_')
-            util.save_image_to_file(epoch,0.5*(x[-1]+1),classifier_cfg['save_path'],'T0_')
-            model.train()
+                }, os.path.join(classifier_cfg['chkpt_path'],'classifier' + str(epoch) + '_' + classifier_cfg['chkpt_file']))            
 
         epoch_times.append(current_time-start_time)
         print('-' * 59)
