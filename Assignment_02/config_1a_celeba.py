@@ -16,5 +16,17 @@ cfg={
         'ddpm':{
             'image_size':64,
             'channels':3
+        },
+        'classifier':{
+            'num_classes':40,
+            'batch_size':128,
+            'num_epochs':15,
+            'lr':0.001,
+            'save_path':'./logs/',
+            'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_classes/',
+            'file_extn':'jpg',
+            'chkpt_path':'./chkpt/',
+            'chkpt_file':'expt_1a_classifier.chk.pt',
+            'load_from_chkpt':False
         }
     }

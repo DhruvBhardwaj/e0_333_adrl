@@ -284,6 +284,15 @@ class DiffusionClassifier(nn.Module):
     def __init__(self,cfg,num_classes, device):
         super(DiffusionClassifier,self).__init__()
         self.cfg=cfg
+        self.betas = linear_beta_schedule(timesteps=self.cfg['diffusion']['T'])        
+        self.alphas = 1. - self.betas
+        self.alphas_cumprod = torch.cumprod(self.alphas, axis=0)
+        self.alphas_cumprod_prev = F.pad(self.alphas_cumprod[:-1], (1, 0), value=1.0)
+        self.sqrt_recip_alphas = torch.sqrt(1.0 / self.alphas)
+        self.sqrt_alphas_cumprod = torch.sqrt(self.alphas_cumprod)
+        self.sqrt_one_minus_alphas_cumprod = torch.sqrt(1. - self.alphas_cumprod)
+        self.posterior_variance = self.betas * (1. - self.alphas_cumprod_prev) / (1. - self.alphas_cumprod)
+
         self.num_classes = num_classes
         self.net=Unet(dim=cfg['ddpm']['image_size'], channels=cfg['ddpm']['channels'],dim_mults=(1, 2, 4,),encoder_only=True)
         
@@ -294,12 +303,23 @@ class DiffusionClassifier(nn.Module):
 
     def forward(self,x):
         self.t = torch.randint(low=0,high=self.cfg['diffusion']['T']-1,size=(x.size(0),),device=self.device).long()
-
-        x = self.net(x,self.t)
+        e,_ = self.q_sample(x)
+        x = self.net(e,self.t)
         x = torch.flatten(x,start_dim=1)
         x = self.dense1(x)
         x = self.dense2(x)
-        return F.softmax(x,dim=1)
+        return x
+    
+    def q_sample(self,x_start, noise=None):
+        if noise is None:
+            noise = torch.randn_like(x_start)
+
+        sqrt_alphas_cumprod_t = extract(self.sqrt_alphas_cumprod, self.t, x_start.shape).to(self.device)
+        sqrt_one_minus_alphas_cumprod_t = extract(
+            self.sqrt_one_minus_alphas_cumprod, self.t, x_start.shape
+        ).to(self.device)
+
+        return sqrt_alphas_cumprod_t * x_start + sqrt_one_minus_alphas_cumprod_t * noise, noise
 
 class DiffusionNet(nn.Module):
     def __init__(self,cfg, device):
