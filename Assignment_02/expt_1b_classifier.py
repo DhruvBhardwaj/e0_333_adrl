@@ -31,7 +31,7 @@ random.seed(seed)
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_celeba_classifier.txt')
 #########################################################3
 #torch.autograd.set_detect_anomaly(True)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
@@ -43,8 +43,8 @@ def validate(model, valid_loader, criterion):
     total_loss = 0.0
     for data in valid_loader:
         image_batch, label = data                  
-
-        label_hat = model(image_batch.to(device)) 
+        t = torch.randint(low=0,high=cfg['diffusion']['T']-1,size=(image_batch.size(0),),device=device).long()
+        label_hat = model(image_batch.to(device),t) 
                     
         loss = criterion(label_hat, label.to(device))        
             
@@ -99,8 +99,9 @@ def train():
 
             counter += 1            
             optimizer.zero_grad()           
+            t = torch.randint(low=0,high=cfg['diffusion']['T']-1,size=(image_batch.size(0),),device=device).long()
 
-            label_hat = model(image_batch.to(device)) 
+            label_hat = model(image_batch.to(device),t) 
                     
             loss = criterion(label_hat, label.to(device))
             loss.backward()
@@ -121,7 +122,7 @@ def train():
 
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
-        if(epoch%10==0):            
+        if(epoch%5==0):            
             torch.save({
                 'epoch': epoch,
                 'loss':total_loss,                
@@ -135,35 +136,33 @@ def train():
     print("Total Training Time={:12.5} seconds".format(str(sum(epoch_times))))
     return model
 
-def sample_images_from_model(cfg,chkpt_file,num_samples, t_list=None):
-
-    model = DiffusionNet(cfg, device)
-    model.to(device)
-
-    classifier_cfg=cfg['training']
-    
-    print('Loading checkpoint from:',chkpt_file)
-    checkpoint = torch.load(chkpt_file)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    
-    model.eval()
-    x = model.sample(cfg['ddpm']['image_size'],num_samples,cfg['ddpm']['channels'])
-    print(len(x))
-    print(x[0].size())
-    timed_samples=[]
-    if(t_list is not None):        
-        for t in t_list:
-            timed_samples.append(x[t])
-    print(len(timed_samples))
-    print(timed_samples[0].size())
-    return x, timed_samples
-
 if __name__ == '__main__':
     print(cfg)
     model = train()
 
-    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/bitmoji/e15_expt_1a_bitmojis.chk.pt'
-    # x,timed_samples = sample_images_from_model(cfg,chkpt_file,10,[i for i in range(0,500,49)])
-    # timed_samples=torch.cat(timed_samples,dim=0)
-    # print(timed_samples.size())
-    # util.save_image_to_file(000,0.5*(timed_samples+1),classifier_cfg['save_path'],'timed_samples_')
+    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/celeba/e15_expt_1a_celeba.chk.pt'
+    # model = DiffusionNet(cfg, device)
+    # model.to(device)    
+    
+    # print('Loading diffusion checkpoint from:',chkpt_file)
+    # checkpoint = torch.load(chkpt_file)
+    # model.load_state_dict(checkpoint['model_state_dict'])    
+    # model.eval()
+
+    # if(cfg['diffusion']['guided']):                    
+    #     classifier = DiffusionClassifier(cfg, cfg['classifier']['num_classes'],device)
+    #     print('Loading classifier from:',cfg['diffusion']['guiding_classifier'])
+    #     checkpoint = torch.load(cfg['diffusion']['guiding_classifier'])
+    #     classifier.load_state_dict(checkpoint['model_state_dict'])
+    #     classifier.to(device)
+    #     classifier.eval()
+
+    # x=[]
+    # for i in range(2):
+    #     x0 = model.sample(cfg['ddpm']['image_size'],cfg['classifier']['num_classes'],cfg['ddpm']['channels'], classifier)             
+    #     x.append(x0[-1])
+    
+    # x=torch.cat(x)
+    # print(x.size())
+    # util.save_image_to_file(0,0.5*(x+1),cfg['training']['save_path'],'Conditional_T0_')
+    

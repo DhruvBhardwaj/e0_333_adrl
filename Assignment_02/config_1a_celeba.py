@@ -1,6 +1,8 @@
 cfg={       
         'diffusion':{
-            'T':500            
+            'T':500,
+            'guided':True,
+            'guiding_classifier':'/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/classifier/classifier10_expt_1a_classifier.chk.pt'            
         },
         'training':{
             'batch_size':128,
@@ -15,13 +17,13 @@ cfg={
         },
         'ddpm':{
             'image_size':64,
-            'channels':3
+            'channels':3            
         },
         'classifier':{
             'num_classes':10,
             'batch_size':64,
-            'num_epochs':15,
-            'lr':0.001,
+            'num_epochs':20,
+            'lr':0.0001,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/img_align_celeba_classes/',
             'file_extn':'jpg',

@@ -9,6 +9,10 @@ from einops import rearrange
 import torch
 from torch import nn, einsum
 import torch.nn.functional as F
+from torchvision import transforms
+transform = transforms.Compose([        
+        transforms.Normalize(mean=[0., 0., 0.], std=[1., 1., 1.])
+        ])
 
 def exists(x):
     return x is not None
@@ -301,8 +305,8 @@ class DiffusionClassifier(nn.Module):
         self.device = device
         print(self.net)
 
-    def forward(self,x):
-        self.t = torch.randint(low=0,high=self.cfg['diffusion']['T']-1,size=(x.size(0),),device=self.device).long()
+    def forward(self,x, t):
+        self.t = t
         e,_ = self.q_sample(x)
         x = self.net(e,self.t)
         x = torch.flatten(x,start_dim=1)
@@ -310,6 +314,18 @@ class DiffusionClassifier(nn.Module):
         x = self.dense2(x)
         return x
     
+    def score_fn(self,x,t):
+        with torch.enable_grad():            
+            x_in = x.detach().requires_grad_(True)
+            x_in = transform(x_in)
+            out = self.forward(x_in, t)
+            log_probs = F.log_softmax(out, dim=1)            
+            selected = torch.diagonal(log_probs)
+            
+            score = torch.autograd.grad(selected.sum(), x_in)
+            
+            return score[0]
+
     def q_sample(self,x_start, noise=None):
         if noise is None:
             noise = torch.randn_like(x_start)
@@ -338,7 +354,8 @@ class DiffusionNet(nn.Module):
 
         self.net=Unet(dim=cfg['ddpm']['image_size'], channels=cfg['ddpm']['channels'],dim_mults=(1, 2, 4,))
 
-        print(self.net)
+        print(self.net)        
+            
                 
     def q_sample(self,x_start, noise=None):
         if noise is None:
@@ -352,15 +369,21 @@ class DiffusionNet(nn.Module):
         return sqrt_alphas_cumprod_t * x_start + sqrt_one_minus_alphas_cumprod_t * noise, noise
 
     @torch.no_grad()
-    def p_sample(self,x, t, t_index):
+    def p_sample(self,x, t, t_index, classifier=None):
         betas_t = extract(self.betas, t, x.shape).to(self.device)
         sqrt_one_minus_alphas_cumprod_t = extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
         ).to(self.device)
         sqrt_recip_alphas_t = extract(self.sqrt_recip_alphas, t, x.shape).to(self.device)
-        
+
+        if(classifier is not None):
+            classifier.eval()
+            classifier_score = sqrt_one_minus_alphas_cumprod_t*10*classifier.score_fn(x,t)
+        else:
+            classifier_score = 0
+
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * self.net(x, t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * (self.net(x, t)-classifier_score.to(self.device)) / sqrt_one_minus_alphas_cumprod_t
         )
 
         if t_index == 0:
@@ -373,7 +396,7 @@ class DiffusionNet(nn.Module):
 
 
     @torch.no_grad()
-    def p_sample_loop(self, shape):
+    def p_sample_loop(self, classifier, shape):
 
         b = shape[0]
         # start from pure noise (for each example in the batch)
@@ -381,13 +404,13 @@ class DiffusionNet(nn.Module):
         imgs = []
 
         for i in tqdm(reversed(range(0, self.cfg['T'])), desc='sampling loop time step', total=self.cfg['T']):
-            img = self.p_sample(img, torch.full((b,), i, device=self.device, dtype=torch.long), i)
+            img = self.p_sample(img, torch.full((b,), i, device=self.device, dtype=torch.long), i, classifier)
             imgs.append(img.cpu())
         return imgs
 
     @torch.no_grad()
-    def sample(self, image_size, batch_size=16, channels=3):
-        return self.p_sample_loop(shape=(batch_size, channels, image_size, image_size))
+    def sample(self, image_size, batch_size=16, channels=3, classifier=None):
+        return self.p_sample_loop(classifier, shape=(batch_size, channels, image_size, image_size))
 
         
     def forward(self,x):
