@@ -2,7 +2,7 @@ cfg={
         'diffusion':{
             'T':500,
             'guided':True,
-            'guiding_classifier':'/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/classifier/classifier10_expt_1a_classifier.chk.pt'            
+            'guiding_classifier':'/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/classifier/classifier20_expt_1a_classifier.chk.pt'            
         },
         'training':{
             'batch_size':128,

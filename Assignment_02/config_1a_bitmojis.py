@@ -3,7 +3,7 @@ cfg={
             'T':500            
         },
         'training':{
-            'batch_size':64,
+            'batch_size':8,
             'num_epochs':15,
             'lr':0.001,
             'save_path':'./logs/',
@@ -16,5 +16,9 @@ cfg={
         'ddpm':{
             'image_size':64,
             'channels':3
+        },
+        'ebm':{
+            'sample_eps': 1,
+            'num_steps':2
         }
     }

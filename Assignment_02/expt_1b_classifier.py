@@ -138,31 +138,31 @@ def train():
 
 if __name__ == '__main__':
     print(cfg)
-    model = train()
+    #model = train()
 
-    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/celeba/e15_expt_1a_celeba.chk.pt'
-    # model = DiffusionNet(cfg, device)
-    # model.to(device)    
+    chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/celeba/e15_expt_1a_celeba.chk.pt'
+    model = DiffusionNet(cfg, device)
+    model.to(device)    
     
-    # print('Loading diffusion checkpoint from:',chkpt_file)
-    # checkpoint = torch.load(chkpt_file)
-    # model.load_state_dict(checkpoint['model_state_dict'])    
-    # model.eval()
+    print('Loading diffusion checkpoint from:',chkpt_file)
+    checkpoint = torch.load(chkpt_file)
+    model.load_state_dict(checkpoint['model_state_dict'])    
+    model.eval()
 
-    # if(cfg['diffusion']['guided']):                    
-    #     classifier = DiffusionClassifier(cfg, cfg['classifier']['num_classes'],device)
-    #     print('Loading classifier from:',cfg['diffusion']['guiding_classifier'])
-    #     checkpoint = torch.load(cfg['diffusion']['guiding_classifier'])
-    #     classifier.load_state_dict(checkpoint['model_state_dict'])
-    #     classifier.to(device)
-    #     classifier.eval()
+    if(cfg['diffusion']['guided']):                    
+        classifier = DiffusionClassifier(cfg, cfg['classifier']['num_classes'],device)
+        print('Loading classifier from:',cfg['diffusion']['guiding_classifier'])
+        checkpoint = torch.load(cfg['diffusion']['guiding_classifier'])
+        classifier.load_state_dict(checkpoint['model_state_dict'])
+        classifier.to(device)
+        classifier.eval()
 
-    # x=[]
-    # for i in range(2):
-    #     x0 = model.sample(cfg['ddpm']['image_size'],cfg['classifier']['num_classes'],cfg['ddpm']['channels'], classifier)             
-    #     x.append(x0[-1])
+    x=[]
+    for i in range(10):
+        x0 = model.sample(cfg['ddpm']['image_size'],cfg['classifier']['num_classes'],cfg['ddpm']['channels'], classifier)             
+        x.append(x0[-1])
     
-    # x=torch.cat(x)
-    # print(x.size())
-    # util.save_image_to_file(0,0.5*(x+1),cfg['training']['save_path'],'Conditional_T0_')
+    x=torch.cat(x)
+    print(x.size())
+    util.save_image_to_file(0,0.5*(x+1),cfg['training']['save_path'],'Conditional_T0_')
     

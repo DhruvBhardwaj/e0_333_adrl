@@ -427,6 +427,51 @@ class DiffusionNet(nn.Module):
         loss = F.mse_loss(e,e0, reduction='sum')
         return loss
 
+class EBM(nn.Module):
+    def __init__(self,cfg, device):
+        super(EBM,self).__init__()
+        self.cfg=cfg        
+        self.eps = cfg['ebm']['sample_eps']
+        self.T = cfg['ebm']['num_steps']
+        self.eps2 = self.eps**2        
+        self.net=Unet(dim=cfg['ddpm']['image_size'], channels=cfg['ddpm']['channels'],dim_mults=(1, 2, 4,),encoder_only=True,with_time_emb=False)
+        
+        self.dense1 = nn.Linear(256*16*16,1024)
+        self.dense2 = nn.Linear(1024,512)
+        self.dense3 = nn.Linear(512,1)
+
+        self.device = device
+        print(self)
+
+    def forward(self,x):
+                
+        x = self.net(x,None)
+        x = torch.flatten(x,start_dim=1)
+        x = self.dense1(x)
+        x = self.dense2(x)
+        return self.dense3(x)
+
+    def criterion(self, es, e):        
+        return torch.mean(e) - torch.mean(es)
+
+    def sample(self,x):
+        x.requires_grad = True
+        noise = torch.randn_like(x, device=self.device)
+        for t in range(0,self.T):
+            noise.normal_(0,0.001)
+            x.data.add_(noise.data)
+            x.data.clamp_(-1.0, 1.0)
+            
+            energy = self.forward(x)
+            energy.sum().backward()    
+                        
+            x.data.sub_(0.5*self.eps2*x.grad.data.clamp_(-0.03, 0.03))
+            x.grad.detach_()
+            x.grad.zero_()
+            x.data.clamp_(-1.0, 1.0)     
+        
+        return x
+
 if __name__ == '__main__':
     from config_1a_celeba import cfg
     #from config_1a_bitmojis import cfg
