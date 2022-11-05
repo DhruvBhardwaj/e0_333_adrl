@@ -29,7 +29,7 @@ random.seed(seed)
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_1a_bitmojis.txt')
 #########################################################3
 #torch.autograd.set_detect_anomaly(True)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
@@ -129,16 +129,16 @@ def sample_images_from_model(cfg,chkpt_file,num_samples, t_list=None):
     if(t_list is not None):        
         for t in t_list:
             timed_samples.append(x[t])
-    print(len(timed_samples))
-    print(timed_samples[0].size())
+        print(len(timed_samples))
+        print(timed_samples[0].size())
     return x, timed_samples
 
 if __name__ == '__main__':
     print(cfg)
     #model = train()
 
-    # chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/bitmoji/e15_expt_1a_bitmojis.chk.pt'
-    # x,timed_samples = sample_images_from_model(cfg,chkpt_file,10,[i for i in range(0,500,49)])
-    # timed_samples=torch.cat(timed_samples,dim=0)
-    # print(timed_samples.size())
-    # util.save_image_to_file(000,0.5*(timed_samples+1),train_cfg['save_path'],'timed_samples_')
+    chkpt_file = '/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/bitmoji/e15_expt_1a_bitmojis.chk.pt'
+    x,_ = sample_images_from_model(cfg,chkpt_file,500,None)
+    #timed_samples=torch.cat(timed_samples,dim=0)
+    #print(timed_samples.size())
+    util.save_one_image_per_file(500,0.5*(x[-1]+1),'/home/dhruvb/adrl/e0_333_adrl/Assignment_02/chkpt/images/bitmoji_diff_output/',None)

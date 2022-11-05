@@ -48,6 +48,20 @@ def save_image_to_file(epoch,image_tensor, save_path,ref_str=None):
     save_image(image_tensor,filestr,nrow = 10) 
     return
 
+def save_one_image_per_file(epoch,image_tensor, save_path,ref_str=None):
+    print(image_tensor.size())
+    
+    k=0
+    for i in range(image_tensor.size(0)):
+        if ref_str is not None:
+            filestr = save_path + ref_str+ str(k) +'_SAMPLE_IMG_E'+ str(epoch)  + '.png'
+        else:
+            filestr = save_path + str(k)+'_SAMPLE_IMG_E'+ str(epoch)  + '.png'
+        save_image(image_tensor[i].squeeze(0),filestr) 
+        k+=1
+    return
+
+
 def return_random_batch_from_dir(img_folder, file_extn, num_samples):
     img_list = [name for name in os.listdir(img_folder) if name.endswith(file_extn)]
     samples=[]

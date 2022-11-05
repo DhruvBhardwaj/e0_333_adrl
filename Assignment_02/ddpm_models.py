@@ -379,12 +379,14 @@ class DiffusionNet(nn.Module):
         if(classifier is not None):
             classifier.eval()
             classifier_score = sqrt_one_minus_alphas_cumprod_t*10*classifier.score_fn(x,t)
-        else:
-            classifier_score = 0
-
-        model_mean = sqrt_recip_alphas_t * (
+            model_mean = sqrt_recip_alphas_t * (
             x - betas_t * (self.net(x, t)-classifier_score.to(self.device)) / sqrt_one_minus_alphas_cumprod_t
-        )
+            )
+        else:
+            model_mean = sqrt_recip_alphas_t * (
+            x - betas_t * self.net(x, t) / sqrt_one_minus_alphas_cumprod_t
+            )
+        
 
         if t_index == 0:
             return model_mean
