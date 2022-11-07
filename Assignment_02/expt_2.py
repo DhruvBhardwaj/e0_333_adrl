@@ -28,7 +28,7 @@ random.seed(seed)
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_2_bitmojis.txt')
 #########################################################3
 #torch.autograd.set_detect_anomaly(True)
-device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
@@ -78,24 +78,23 @@ def train():
                 p.requires_grad = False            
 
             image_batch_samples = model.sample(image_batch.to(device))
-
             for p in model.parameters():
                 p.requires_grad = True
             model.train()
 
             es = model(image_batch_samples.to(device)) 
+            es = es.detach()
+            #print(es.requires_grad)
             loss = model.criterion(es, e)
             loss.backward()
             optimizer.step()
             
             total_loss += loss.item()            
             
-            if counter%1 == 0:                
+            if counter%500 == 0:                
                 print("Epoch {}......Step: {}/{}....... Loss={:12.5}"
                 .format(epoch, counter, len(data), total_loss/train_cfg['batch_size']))
-            
-            break
-        
+
         current_time = time.process_time()
         print(N)
         print("Epoch {}/{} Done, Loss = {:12.5}"
@@ -104,7 +103,9 @@ def train():
         print("Total Time Elapsed={:12.5} seconds".format(str(current_time-start_time)))        
         
         if(epoch%5==0):
-            #x = model.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])
+            model.eval()
+            x = model.sample(torch.randn(100,3,64,64).to(device))
+            print(x.size())
             torch.save({
                 'epoch': epoch,
                 'loss':total_loss,                
@@ -112,9 +113,8 @@ def train():
                 'optimizer_state_dict': optimizer.state_dict(),                 
                 }, os.path.join(train_cfg['chkpt_path'],'e' + str(epoch) + '_' + train_cfg['chkpt_file']))            
             
+            util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'],str(cfg['ebm']['num_steps'])+'EBM_')
             
-            #util.save_image_to_file(epoch,0.5*(x[0]+1),train_cfg['save_path'],'TT_')
-            #util.save_image_to_file(epoch,0.5*(x[-1]+1),train_cfg['save_path'],'T0_')
             model.train()
 
         epoch_times.append(current_time-start_time)

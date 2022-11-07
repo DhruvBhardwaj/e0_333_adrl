@@ -454,9 +454,11 @@ class EBM(nn.Module):
         return self.dense3(x)
 
     def criterion(self, es, e):        
-        return torch.mean(e) - torch.mean(es)
+        return torch.mean(es) - torch.mean(e) + 0.001*(torch.mean(es**2 + e**2))
 
     def sample(self,x):
+        had_gradients_enabled = torch.is_grad_enabled()
+        torch.set_grad_enabled(True)
         x.requires_grad = True
         noise = torch.randn_like(x, device=self.device)
         for t in range(0,self.T):
@@ -464,14 +466,15 @@ class EBM(nn.Module):
             x.data.add_(noise.data)
             x.data.clamp_(-1.0, 1.0)
             
-            energy = self.forward(x)
+            energy = -1*self.forward(x)
             energy.sum().backward()    
                         
-            x.data.sub_(0.5*self.eps2*x.grad.data.clamp_(-0.03, 0.03))
+            x.data.add_(-0.5*self.eps2*x.grad.data.clamp_(-0.03, 0.03))
+            #x.data.add_(-10*x.grad.data.clamp_(-0.03, 0.03))
             x.grad.detach_()
             x.grad.zero_()
-            x.data.clamp_(-1.0, 1.0)     
-        
+            x.data.clamp_(-1.0, 1.0)             
+        torch.set_grad_enabled(had_gradients_enabled)
         return x
 
 if __name__ == '__main__':
