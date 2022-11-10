@@ -4,8 +4,8 @@ cfg={
         },
         'training':{
             'batch_size':64,
-            'num_epochs':20,
-            'lr':0.0002,
+            'num_epochs':500,
+            'lr':0.0001,
             'save_path':'./logs/',
             'data_path':'/home/dhruvb/adrl/datasets/bitmojis_resampled/',
             'file_extn':'png',
@@ -19,7 +19,10 @@ cfg={
             'channels':3
         },
         'ebm':{
-            'sample_eps': 5,
-            'num_steps':20
+            'step_size': 10,
+            'num_steps':60,
+            'alpha':.001,
+            'buffer_len':100,
+            'buffer_shape':(3,64,64)
         }
     }

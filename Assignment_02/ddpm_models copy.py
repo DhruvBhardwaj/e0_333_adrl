@@ -1,11 +1,10 @@
 import math
 from inspect import isfunction
 from functools import partial
-import numpy as np
+
 from tqdm.auto import tqdm
 import utils as util
 from einops import rearrange
-import random
 
 import torch
 from torch import nn, einsum
@@ -429,121 +428,70 @@ class DiffusionNet(nn.Module):
            
         loss = F.mse_loss(e,e0, reduction='sum')
         return loss
-class Swish(nn.Module):
-
-    def forward(self, x):
-        return x * torch.sigmoid(x)
 
 class EBM(nn.Module):
     def __init__(self,cfg, device):
         super(EBM,self).__init__()
         self.cfg=cfg        
-        self.alpha = cfg['ebm']['alpha']
-        self.step_size = cfg['ebm']['step_size']
-        self.T = cfg['ebm']['num_steps']     
-        self.img_shape = cfg['ebm']['buffer_shape']
-        self.buffer_len=cfg['ebm']['buffer_len']
-        self.buffer=[torch.rand(self.img_shape)*2.0-1 for _ in range(self.buffer_len)]          
+        self.eps = cfg['ebm']['sample_eps']
+        self.T = cfg['ebm']['num_steps']
+        self.eps2 = self.eps**2        
+        self.net=Unet(dim=cfg['ddpm']['image_size'], channels=cfg['ddpm']['channels'],dim_mults=(1, 2, 4, 8,),encoder_only=True,with_time_emb=False)
         
-        layers=[]
-        layers.append(nn.Conv2d(cfg['ddpm']['channels'],32,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.Conv2d(32,64,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.AvgPool2d(kernel_size=2,stride=2))
-        layers.append(nn.Conv2d(64,64,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.Conv2d(64,128,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.AvgPool2d(kernel_size=2,stride=2))
-        layers.append(nn.Conv2d(128,128,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.Conv2d(128,256,kernel_size=3,bias=False))
-        layers.append(Swish())
-        layers.append(nn.AvgPool2d(kernel_size=2,stride=2))
-        layers.append(nn.Conv2d(256,512,kernel_size=4,bias=False))        
-
-        self.conv = nn.Sequential(*layers)
-        
-        self.dense1 = nn.Linear(512,1)
+        self.dense1 = nn.Linear(512*8*8,512)
+        self.dense2 = nn.Linear(512,256)
+        self.dense3 = nn.Linear(256,1)
 
         self.device = device
         print(self)
-        print(len(self.buffer))
-        # for i in range(self.buffer_len):
-        #     print(self.buffer[i].size())
 
     def forward(self,x):
                 
-        x = self.conv(x)        
-        x = torch.flatten(x,start_dim=1)        
-        return self.dense1(x)
+        x = self.net(x,None)
+        x = torch.flatten(x,start_dim=1)
+        x = self.dense1(x)
+        x = self.dense2(x)
+        return self.dense3(x)
 
     def criterion(self, es, e):        
-        return torch.mean((e - es) + self.alpha*(es**2 + e**2))
+        return torch.mean(es) - torch.mean(e) + 0.0001*(torch.mean(es**2 + e**2))
 
-    def sample(self,x_shape):
-        
-        n_new = np.random.binomial(x_shape[0], 0.05)
-        if(n_new==0):
-            n_new=1
-        # print(n_new,x_shape)
-        ll = random.choices(self.buffer, k=x_shape[0]-n_new)
-        for i in range(len(ll)):
-            ll[i]=ll[i].squeeze(0)
-        rand_imgs = torch.rand((n_new,) + self.img_shape) * 2 - 1        
-        old_imgs = torch.stack(ll, dim=0)
-        x = torch.cat([rand_imgs, old_imgs], dim=0).detach().to(self.device)    
-        x.requires_grad=True
-        
-        for _ in range(0,self.T):            
-            noise =  0.005*torch.randn_like(x, device=self.device)    
-            energy = self.forward(x)            
-            grad = torch.autograd.grad(energy.sum(),x)[0]    
-            grad.clamp(-0.05,0.05)        
-            x = x - self.step_size*grad + noise 
-            x.clamp(-1.,1.)             
+    def sample(self,x):
+        x.requires_grad = True
+        had_gradients_enabled = torch.is_grad_enabled()
+        torch.set_grad_enabled(True)
 
-        self.buffer = list(x.to(torch.device("cpu")).chunk(x_shape[0], dim=0)) + self.buffer
-        self.buffer = self.buffer[:self.buffer_len]
+        noise = torch.randn_like(x, device=self.device)
+        for t in range(0,self.T):
+            noise.normal_(0,0.001)            
+            x.data.add_(noise.data)
+            x.data.clamp_(-1.0, 1.0)
+            energy = -1*self.forward(x)
+            energy.sum().backward()    
+            #print(x.grad.data)
+            #print(x.grad.data.size())
 
-        return x.detach()
-    
-    def sample_from_buffer(self,x_shape):
-        assert self.buffer_len >= x_shape[0]
-       
-        n_new=1
-        # print(n_new,x_shape)
-        ll = random.choices(self.buffer, k=x_shape[0]-n_new)
-        for i in range(len(ll)):
-            ll[i]=ll[i].squeeze(0)
-        rand_imgs = torch.rand((n_new,) + self.img_shape) * 2 - 1        
-        old_imgs = torch.stack(ll, dim=0)
-        x = torch.cat([rand_imgs, old_imgs], dim=0).detach().to(self.device)    
-        x.requires_grad=True
-        
-        for _ in range(0,self.T):            
-            noise =  0.005*torch.randn_like(x, device=self.device)    
-            energy = self.forward(x)            
-            grad = torch.autograd.grad(energy.sum(),x)[0]            
-            grad.clamp(-0.05,0.05)
-            x = x - self.step_size*grad + noise    
-            x.clamp(-1.,1.)
+            x.data.add_(-0.5*self.eps2*x.grad.data.clamp_(-0.03, 0.03))
             
+            
+            x.grad.detach_()
+            x.grad.zero_()
+            x.data.clamp_(-1.0, 1.0)                 
 
-
-        return x.detach()
+        had_gradients_enabled = torch.is_grad_enabled()
+        torch.set_grad_enabled(True)
+        return x
 
 if __name__ == '__main__':
-    #from config_1a_celeba import cfg
-    from config_1a_bitmojis import cfg
+    from config_1a_celeba import cfg
+    #from config_1a_bitmojis import cfg
     
-    d = EBM(cfg,'cpu')
-  
-    y = d.sample((8,3,64,64))
+    d = DiffusionClassifier(cfg,10,'cpu')
+    x = torch.randn(2,3,64,64)
+    y = d(x)
     print(y.size())
-    # y = d.sample_from_buffer((64,3,64,64))
-    # print(y.size())
+    print(y)
+    
     # x = d.sample(cfg['ddpm']['image_size'],100,cfg['ddpm']['channels'])            
     # print(len(x))
     # print(x[0].size())

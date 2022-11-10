@@ -28,29 +28,20 @@ random.seed(seed)
 sys.stdout = util.Logger(cfg['training']['save_path'],'expt_2_bitmojis.txt')
 #########################################################3
 #torch.autograd.set_detect_anomaly(True)
-device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 #device = torch.device('cpu')
 print(device)
 #########################################################3
 train_cfg = cfg['training']
 def train():
-    print('-' * 59)
-    torch.cuda.empty_cache()
+    print('-' * 59)    
     model = EBM(cfg, device)
 
     model.to(device)
         
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg['lr'])
     
-    if(train_cfg['load_from_chkpt']):        
-        chkpt_file = os.path.join(train_cfg['chkpt_path'],train_cfg['chkpt_file'])
-        print('Loading checkpoint from:',chkpt_file)
-        checkpoint = torch.load(chkpt_file)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch_start=1+checkpoint['epoch']        
-    else:
-        epoch_start=1            
+    epoch_start=1            
     
     model.train()
     
@@ -68,37 +59,30 @@ def train():
         for image_batch in data:
             
             counter += 1            
-                        
-            model.eval()     
-            for p in model.parameters():
-                p.requires_grad = False                        
-
-            image_batch_samples = model.sample(torch.randn_like(image_batch,device=device))
-        
-            image_batch_samples.requires_grad=False
-
-            es = model(image_batch_samples.to(device)) 
-            es = es.detach()
-
-            for p in model.parameters():
-                p.requires_grad = True
-            model.train()
-
-            optimizer.zero_grad()           
+            image_batch_samples = model.sample(image_batch.size())                       
+            #image_batch_samples = model.sample(image_batch.to(device))
+            optimizer.zero_grad()                                  
+            
+            es = model(image_batch_samples.to(device))                                                     
             e = model(image_batch.to(device)) 
-            loss = model.criterion(es, e)
+
+            loss = model.criterion(es.detach(), e)
             loss.backward()
+
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.1)
             
             optimizer.step()
             
             total_loss += loss.item()            
             
-            if counter%50 == 0:                
+            if counter%500 == 0:                
                 print("Epoch {}......Step: {}/{}....... Loss={:12.5}"
-                .format(epoch, counter, len(data), total_loss/train_cfg['batch_size']))
+                .format(epoch, counter, len(data), total_loss/train_cfg['batch_size']))                                
+            
+            if counter%1000 == 0:                
                 break
                 
-
+        
         current_time = time.process_time()
         print(N)
         print("Epoch {}/{} Done, Loss = {:12.5}"
@@ -108,9 +92,7 @@ def train():
         
         if(epoch%1==0):
             model.eval()
-            for p in model.parameters():
-                p.requires_grad = False 
-            x = model.sample(torch.randn(100,3,64,64).to(device))
+            x = model.sample_from_buffer((100,3,64,64))
             print(x.size())
             # torch.save({
             #     'epoch': epoch,
@@ -120,8 +102,6 @@ def train():
             #     }, os.path.join(train_cfg['chkpt_path'],'e' + str(epoch) + '_' + train_cfg['chkpt_file']))            
             util.save_image_to_file(epoch,0.5*(x+1),train_cfg['save_path'],str(cfg['ebm']['num_steps'])+'EBM_')
             model.train()
-            for p in model.parameters():
-                p.requires_grad = True 
 
         epoch_times.append(current_time-start_time)
         print('-' * 59)
