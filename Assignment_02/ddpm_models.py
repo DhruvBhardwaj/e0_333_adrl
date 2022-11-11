@@ -1,3 +1,4 @@
+# REF: https://github.com/lucidrains/denoising-diffusion-pytorch
 import math
 from inspect import isfunction
 from functools import partial
